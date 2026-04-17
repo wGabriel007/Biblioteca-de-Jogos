@@ -1,0 +1,35 @@
+﻿@model Biblioteca_de_Jogos.Models.Jogo
+
+<div class="container">
+    <h2>Cadastrar Novo Jogo</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Create" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Nome do Jogo</label>
+                    <input asp-for="Nome" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Gênero</label>
+                    <input asp-for="Genero" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Dono</label>
+                    <input asp-for="Dono" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">URL da Foto (Link da Web)</label>
+                    <input asp-for="FotoUrl" class="form-control" placeholder="https://..." required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Horas para Zerar</label>
+                    <input asp-for="HorasParaZerar" type="number" class="form-control" required />
+                </div>
+                
+                <button type="submit" class="btn btn-success">Salvar na Biblioteca</button>
+                <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+            </form>
+        </div>
+    </div>
+</div>

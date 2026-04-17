@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Biblioteca_de_Jogos.Models.Jogo>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Biblioteca de Jogos GETIC</h1>
+        <a asp-action="Create" class="btn btn-primary"> + Novo Jogo</a>
+    </div>
+
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="@item.FotoUrl" class="card-img-top" alt="Capa" style="height: 250px; object-fit: cover;">
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Nome</h5>
+                        <p class="badge bg-secondary">@item.Genero</p>
+                        <p class="card-subtitle">Dono: @item.Dono</p>
+                        <p class="text-muted small">Faltam <strong>@item.HorasParaZerar h</strong> para zerar.</p>
+
+                        <hr />
+
+                        <div class="d-flex gap-2 mb-2">
+                            <a asp-page="/Jogos/Emprestimos" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Ver detalhes</a>
+                        </div>
+
+                        @if (item.EstaEmprestado)
+                        {
+                            <div class="alert alert-warning py-2 mb-0">
+                                <i class="bi bi-person-fill"></i> Emprestado para
+                            </div>
+                        }
+                        else
+                        {
+                            <form asp-action="Emprestar" method="post" class="d-flex gap-2">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <input type="text" name="amigo" class="form-control form-control-sm" placeholder="Nome do amigo" required />
+                                <button type="submit" class="btn btn-outline-success btn-sm">Pegar</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

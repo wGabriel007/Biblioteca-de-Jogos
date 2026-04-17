@@ -1,0 +1,42 @@
+@page "{id:int}"
+@model Biblioteca_de_Jogos.Pages.Jogos.DetailsModel
+@{
+    ViewData["Title"] = Model.Jogo?.Nome ?? "Detalhes";
+}
+
+<div class="container mt-4">
+    <h1>@Model.Jogo?.Nome</h1>
+    <p class="text-muted">@Model.Jogo?.Genero</p>
+
+    <div class="mb-3">
+        <strong>Emprestado para:</strong> @Model.Jogo?.EmprestadoPara ?? "Disponível"
+    </div>
+
+    <form method="post" asp-page-handler="Emprestar" class="mb-3 d-flex gap-2">
+        <input type="hidden" name="id" value="@Model.Jogo?.Id" />
+        <input type="text" name="para" class="form-control" placeholder="Nome do amigo (vazio para devolver)" />
+        <button class="btn btn-outline-primary">Salvar Empréstimo</button>
+    </form>
+
+    <hr />
+
+    <h4>Progresso dos Usuários</h4>
+    <ul class="list-group mb-3">
+        @foreach (var p in Model.Progresso)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>@p.Usuario</strong>
+                    <div class="small text-muted">Atualizado em @p.DataAtualizacao.ToLocalTime()</div>
+                </div>
+                <span class="badge bg-primary rounded-pill">@p.Percentual% </span>
+            </li>
+        }
+    </ul>
+
+    <form method="post" asp-page-handler="SetProgress" class="d-flex gap-2 align-items-center">
+        <input type="hidden" name="id" value="@Model.Jogo?.Id" />
+        <input type="number" name="percentual" min="0" max="100" class="form-control" placeholder="Percentual (0-100)" required />
+        <button class="btn btn-success">Salvar Progresso</button>
+    </form>
+</div>

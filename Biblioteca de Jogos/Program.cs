@@ -1,7 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using Biblioteca_de_Jogos.Data;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+
 builder.Services.AddControllersWithViews();
+
 
 var app = builder.Build();
 
@@ -22,7 +31,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Jogos}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 
