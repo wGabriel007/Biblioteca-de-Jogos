@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Biblioteca_de_Jogos.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260417160937_Inicial")]
-    partial class Inicial
+    [Migration("20260422171809_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,6 +58,10 @@ namespace Biblioteca_de_Jogos.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Dono")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("EstaEmprestado")
                         .HasColumnType("bit");
 
@@ -81,7 +85,42 @@ namespace Biblioteca_de_Jogos.Migrations
                     b.ToTable("Jogos");
                 });
 
+            modelBuilder.Entity("Biblioteca_de_Jogos.Models.ProgressoJogo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataAtualizacao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("JogoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Porcentagem")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JogoId");
+
+                    b.ToTable("ProgressoJogos");
+                });
+
             modelBuilder.Entity("Biblioteca_de_Jogos.Models.Emprestimo", b =>
+                {
+                    b.HasOne("Biblioteca_de_Jogos.Models.Jogo", "Jogo")
+                        .WithMany()
+                        .HasForeignKey("JogoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Jogo");
+                });
+
+            modelBuilder.Entity("Biblioteca_de_Jogos.Models.ProgressoJogo", b =>
                 {
                     b.HasOne("Biblioteca_de_Jogos.Models.Jogo", "Jogo")
                         .WithMany()

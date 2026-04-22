@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Biblioteca_de_Jogos.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,9 +19,10 @@ namespace Biblioteca_de_Jogos.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Genero = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FotoUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     HorasParaZerar = table.Column<int>(type: "int", nullable: false),
-                    EstaEmprestado = table.Column<bool>(type: "bit", nullable: false)
+                    FotoUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EstaEmprestado = table.Column<bool>(type: "bit", nullable: false),
+                    Dono = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -49,9 +50,35 @@ namespace Biblioteca_de_Jogos.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ProgressoJogos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    JogoId = table.Column<int>(type: "int", nullable: false),
+                    Porcentagem = table.Column<int>(type: "int", nullable: false),
+                    DataAtualizacao = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProgressoJogos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProgressoJogos_Jogos_JogoId",
+                        column: x => x.JogoId,
+                        principalTable: "Jogos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Emprestimos_JogoId",
                 table: "Emprestimos",
+                column: "JogoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProgressoJogos_JogoId",
+                table: "ProgressoJogos",
                 column: "JogoId");
         }
 
@@ -60,6 +87,9 @@ namespace Biblioteca_de_Jogos.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Emprestimos");
+
+            migrationBuilder.DropTable(
+                name: "ProgressoJogos");
 
             migrationBuilder.DropTable(
                 name: "Jogos");

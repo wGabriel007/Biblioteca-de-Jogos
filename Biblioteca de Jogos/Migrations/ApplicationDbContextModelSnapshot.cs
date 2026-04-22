@@ -55,6 +55,10 @@ namespace Biblioteca_de_Jogos.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Dono")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("EstaEmprestado")
                         .HasColumnType("bit");
 
@@ -92,12 +96,8 @@ namespace Biblioteca_de_Jogos.Migrations
                     b.Property<int>("JogoId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Percentual")
+                    b.Property<int>("Porcentagem")
                         .HasColumnType("int");
-
-                    b.Property<string>("Usuario")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

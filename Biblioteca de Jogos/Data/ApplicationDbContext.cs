@@ -14,6 +14,7 @@ namespace Biblioteca_de_Jogos.Data
         public DbSet<Jogo> Jogos { get; set; }
         public DbSet<Emprestimo> Emprestimos { get; set; }
         public DbSet<ProgressoJogo> ProgressoJogos { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
             
     }
 }
