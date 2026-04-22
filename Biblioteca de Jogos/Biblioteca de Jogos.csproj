@@ -21,4 +21,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Biblioteca de Jogos.Domain\Biblioteca de Jogos.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
