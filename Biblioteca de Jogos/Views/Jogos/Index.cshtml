@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<Biblioteca_de_Jogos.Models.Jogo>
 @{
-    ViewData["Title"] = "Minha Biblioteca";
+    ViewData["Title"] = "Biblioteca";
     var usuarioLogado = Context.Session.GetString("UsuarioNome");
     var isAdmin = Context.Session.GetString("IsAdmin") == "True";
 }
