@@ -13,7 +13,6 @@ namespace Biblioteca_de_Jogos.Models
         [Display(Name = "Senha")]
         public string Password { get; set; } = string.Empty;
 
-        [Display(Name = "Lembrar-me")]
         public bool RememberMe { get; set; }
     }
 }

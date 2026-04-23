@@ -22,10 +22,12 @@ namespace Biblioteca_de_Jogos.Controllers
             return View();
         }
 
+        [HttpGet]
         public IActionResult Cadastro()
         {
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cadastro(Usuario user)
@@ -42,33 +44,23 @@ namespace Biblioteca_de_Jogos.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Loguin(LoginViewModel model)
+        public async Task<IActionResult> Loguin(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var usuario = _context.Usuarios
-                    .FirstOrDefault(u => u.Nome == model.Username && u.Senha == model.Password);
+                var usuario = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.Nome == model.Username && u.Senha == model.Password);
 
-                if(usuario != null)
+                if (usuario != null)
                 {
-                    HttpContext.Session.SetString("Id", usuario.Id.ToString());
-                    HttpContext.Session.SetString("Nome", usuario.Nome);
-                    TempData["SucessMessage"] = $"Bem-Vindo, {usuario.Nome}";
+                    HttpContext.Session.SetString("UsuarioId", usuario.Id.ToString());
+                    HttpContext.Session.SetString("UsuarioNome", usuario.Nome);
+                    HttpContext.Session.SetString("IsAdmin", usuario.IsAdmin.ToString());
+                    TempData["SuccessMessage"] = $"Bem-vindo, {usuario.Nome}";
                     return RedirectToAction("Index", "Jogos");
                 }
 
-                if (model.Username == "admin" && model.Password == "admin123")
-                {
-                    // Salvar informações na sessão ou criar cookie de autenticação
-                    HttpContext.Session.SetString("Usuario", model.Username);
-
-                    TempData["SuccessMessage"] = "Login realizado com sucesso!";
-                    return RedirectToAction("Index", "Jogos");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Usuário ou senha inválidos.");
-                }
+                ModelState.AddModelError("", "Usuário ou senha inválidos.");
             }
 
             return View(model);
@@ -80,10 +72,7 @@ namespace Biblioteca_de_Jogos.Controllers
             return RedirectToAction("Loguin");
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+        public IActionResult Privacy() => View();
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
