@@ -17,16 +17,10 @@ namespace Biblioteca_de_Jogos.Controllers
             _context = context;
         }
 
-        public IActionResult Loguin()
-        {
-            return View();
-        }
+        public IActionResult Loguin() => View();
 
         [HttpGet]
-        public IActionResult Cadastro()
-        {
-            return View();
-        }
+        public IActionResult Cadastro() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -34,6 +28,15 @@ namespace Biblioteca_de_Jogos.Controllers
         {
             if (ModelState.IsValid)
             {
+                var nomeJaExiste = await _context.Usuarios
+                    .AnyAsync(u => u.Nome == user.Nome);
+
+                if (nomeJaExiste)
+                {
+                    ModelState.AddModelError("Nome", "Este nome de usuário já está em uso. Escolha outro.");
+                    return View(user);
+                }
+
                 _context.Usuarios.Add(user);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Usuário cadastrado com sucesso!";
@@ -56,7 +59,7 @@ namespace Biblioteca_de_Jogos.Controllers
                     HttpContext.Session.SetString("UsuarioId", usuario.Id.ToString());
                     HttpContext.Session.SetString("UsuarioNome", usuario.Nome);
                     HttpContext.Session.SetString("IsAdmin", usuario.IsAdmin.ToString());
-                    TempData["SuccessMessage"] = $"Bem-vindo, {usuario.Nome}";
+                    TempData["SuccessMessage"] = $"Bem-vindo, {usuario.Nome}!";
                     return RedirectToAction("Index", "Jogos");
                 }
 
