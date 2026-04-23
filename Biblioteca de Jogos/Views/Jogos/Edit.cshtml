@@ -1,25 +1,26 @@
 ﻿@model Biblioteca_de_Jogos.Models.Jogo
 @{
-    ViewData["Title"] = "Adicionar Jogo";
+    ViewData["Title"] = "Editar Jogo";
 }
 
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-7">
             <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Adicionar Jogo</h4>
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">Editar Jogo</h4>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Create" method="post">
+                    <form asp-action="Edit" method="post">
+                        <input asp-for="Id" type="hidden" />
                         <div class="mb-3">
                             <label asp-for="Nome" class="form-label">Nome do Jogo</label>
-                            <input asp-for="Nome" class="form-control" placeholder="Ex: The Last of Us" />
+                            <input asp-for="Nome" class="form-control" />
                             <span asp-validation-for="Nome" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label asp-for="Genero" class="form-label">Gênero</label>
-                            <input asp-for="Genero" class="form-control" placeholder="Ex: Aventura, RPG, FPS" />
+                            <input asp-for="Genero" class="form-control" />
                             <span asp-validation-for="Genero" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
@@ -29,12 +30,12 @@
                         </div>
                         <div class="mb-3">
                             <label asp-for="FotoUrl" class="form-label">URL da Capa (opcional)</label>
-                            <input asp-for="FotoUrl" class="form-control" placeholder="https://..." />
+                            <input asp-for="FotoUrl" class="form-control" />
                             <span asp-validation-for="FotoUrl" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label asp-for="Dono" class="form-label">Dono</label>
-                            <input asp-for="Dono" class="form-control" placeholder="Nome do dono" />
+                            <input asp-for="Dono" class="form-control" />
                             <span asp-validation-for="Dono" class="text-danger"></span>
                         </div>
                         <div class="mb-3 form-check">
@@ -42,7 +43,7 @@
                             <label asp-for="EstaEmprestado" class="form-check-label">Está emprestado?</label>
                         </div>
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">Salvar</button>
+                            <button type="submit" class="btn btn-warning">Atualizar</button>
                             <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
                         </div>
                     </form>
