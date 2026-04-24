@@ -1,8 +1,9 @@
 ﻿@model IEnumerable<Biblioteca_de_Jogos.Models.Jogo>
 @{
-    ViewData["Title"] = "Biblioteca";
-    var usuarioLogado = Context.Session.GetString("UsuarioNome");
-    var isAdmin = Context.Session.GetString("IsAdmin") == "True";
+    ViewData["Title"] = "Minha Biblioteca";
+    var usuarioLogado  = Context.Session.GetString("UsuarioNome");
+    var isAdmin        = Context.Session.GetString("IsAdmin") == "True";
+    var totalPendentes = ViewBag.TotalPendentes as int? ?? 0;
 }
 
 <div class="container mt-4">
@@ -14,6 +15,19 @@
                 <span class="badge bg-danger">Admin</span>
             }
             <span class="text-muted small">👤 @usuarioLogado</span>
+
+            <a asp-controller="Emprestimo" asp-action="Notificacoes"
+               class="btn btn-outline-secondary btn-sm position-relative">
+                ✉️
+                @if (totalPendentes > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle
+                                 badge rounded-pill bg-danger">
+                        @totalPendentes
+                    </span>
+                }
+            </a>
+
             <a asp-action="Create" class="btn btn-primary btn-sm">+ Adicionar Jogo</a>
             <a asp-action="Logout" asp-controller="Home" class="btn btn-outline-secondary btn-sm">Sair</a>
         </div>
@@ -26,7 +40,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
-
     @if (TempData["Erro"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show">
@@ -35,59 +48,82 @@
         </div>
     }
 
-    @if (!Model.Any())
-    {
-        <div class="text-center py-5 text-muted">
-            <p class="fs-5">Nenhum jogo cadastrado ainda.</p>
-            <a asp-action="Create" class="btn btn-outline-primary">Adicionar primeiro jogo</a>
-        </div>
-    }
-    else
-    {
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            @foreach (var jogo in Model)
-            {
-                var temPermissao = isAdmin || jogo.Dono == usuarioLogado;
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var jogo in Model)
+        {
+            var temPermissao = isAdmin || jogo.Dono == usuarioLogado;
+            var ehDono       = jogo.Dono == usuarioLogado;
 
-                <div class="col">
-                    <div class="card h-100 shadow-sm">
-                        @if (!string.IsNullOrEmpty(jogo.FotoUrl))
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    @if (!string.IsNullOrEmpty(jogo.FotoUrl))
+                    {
+                        <img src="@jogo.FotoUrl" class="card-img-top"
+                             style="height:180px; object-fit:cover;" alt="@jogo.Nome" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@jogo.Nome</h5>
+                        <p class="card-text text-muted mb-1">🎯 @jogo.Genero</p>
+                        <p class="card-text text-muted mb-1">⏱️ @jogo.HorasParaZerar horas para zerar</p>
+                        <p class="card-text mb-1">👤 Dono: <strong>@jogo.Dono</strong></p>
+
+                        @if (jogo.EstaEmprestado)
                         {
-                            <img src="@jogo.FotoUrl" class="card-img-top" style="height:180px; object-fit:cover;" alt="@jogo.Nome" />
-                        }
-                        <div class="card-body">
-                            <h5 class="card-title">@jogo.Nome</h5>
-                            <p class="card-text text-muted mb-1">🎯 @jogo.Genero</p>
-                            <p class="card-text text-muted mb-1">⏱️ @jogo.HorasParaZerar horas para zerar</p>
-                            <p class="card-text mb-1">👤 Dono: <strong>@jogo.Dono</strong></p>
-                            <span class="badge @(jogo.EstaEmprestado ? "bg-warning text-dark" : "bg-success")">
-                                @(jogo.EstaEmprestado ? "Emprestado" : "Disponível")
+                            <span class="badge bg-warning text-dark">
+                                📤 Emprestado para: @jogo.EmprestadoPara
                             </span>
-                        </div>
-                        <div class="card-footer d-flex gap-2">
-                            @if (temPermissao)
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">✅ Disponível</span>
+                        }
+                    </div>
+                    <div class="card-footer d-flex flex-wrap gap-2">
+                        @if (temPermissao)
+                        {
+                            <a asp-action="Edit" asp-route-id="@jogo.Id"
+                               class="btn btn-sm btn-outline-primary"> Editar</a>
+
+                            <form asp-action="Delete" asp-route-id="@jogo.Id" method="post"
+                                  onsubmit="return confirm('Remover @jogo.Nome?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                     Remover
+                                </button>
+                            </form>
+
+                            @if (jogo.EstaEmprestado && ehDono)
                             {
-                                <a asp-action="Edit" asp-route-id="@jogo.Id" class="btn btn-sm btn-outline-primary w-50">
-                                    Editar
-                                </a>
-                                <form asp-action="Delete" asp-route-id="@jogo.Id" method="post" class="w-50"
-                                      onsubmit="return confirm('Remover @jogo.Nome?')">
+                                <form asp-controller="Emprestimo" asp-action="Devolver"
+                                      method="post">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">
-                                         Remover
+                                    <input type="hidden" name="jogoId" value="@jogo.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                         Devolvido
                                     </button>
                                 </form>
                             }
-                            else
-                            {
-                                <span class="text-muted small w-100 text-center align-self-center">
-                                    Apenas o dono pode editar
-                                </span>
-                            }
-                        </div>
+                        }
+                        else if (!jogo.EstaEmprestado && jogo.Dono != usuarioLogado)
+                        {
+                            <form asp-controller="Emprestimo" asp-action="Solicitar"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="jogoId" value="@jogo.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-info">
+                                     Pedir Emprestado
+                                </button>
+                            </form>
+                        }
+                        else if (jogo.EstaEmprestado && !ehDono)
+                        {
+                            <span class="text-muted small align-self-center">
+                                 Emprestado
+                            </span>
+                        }
                     </div>
                 </div>
-            }
-        </div>
-    }
+            </div>
+        }
+    </div>
 </div>

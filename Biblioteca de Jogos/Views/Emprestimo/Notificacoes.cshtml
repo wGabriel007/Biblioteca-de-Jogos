@@ -1,0 +1,81 @@
+@model IEnumerable<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>
+@{
+    ViewData["Title"] = "Solicitações de Empréstimo";
+}
+
+<div class="container mt-4">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+    <h2>Solicitações Pendentes</h2>
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Erro"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["Erro"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <p class="fs-5">Nenhuma solicitação pendente.</p>
+            <a asp-controller="Jogos" asp-action="Index" class="btn btn-outline-primary">
+                Voltar à Biblioteca
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3 mt-2">
+            @foreach (var s in Model)
+            {
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-warning">
+                        <div class="card-body">
+                            <div class="d-flex gap-3 align-items-center">
+                                @if (!string.IsNullOrEmpty(s.Jogo?.FotoUrl))
+                                {
+                                    <img src="@s.Jogo.FotoUrl"
+                                         style="height:80px; border-radius:8px; object-fit:cover;" />
+                                }
+                                <div>
+                                    <h5 class="mb-1">🎮 @s.Jogo?.Nome</h5>
+                                    <p class="mb-1">
+                                        👤 <strong>@s.SolicitanteNome</strong> quer este jogo emprestado
+                                    </p>
+                                    <small class="text-muted">
+                                        📅 @s.DataSolicitacao.ToString("dd/MM/yyyy HH:mm")
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer d-flex gap-2">
+                            <form asp-controller="Emprestimo" asp-action="Aceitar"
+                                  method="post" class="w-50">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@s.Id" />
+                                <button type="submit" class="btn btn-success w-100">
+                                     Aceitar
+                                </button>
+                            </form>
+                            <form asp-controller="Emprestimo" asp-action="Rejeitar"
+                                  method="post" class="w-50">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@s.Id" />
+                                <button type="submit" class="btn btn-danger w-100">
+                                     Rejeitar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -33,9 +33,12 @@ namespace Biblioteca_de_Jogos.Controllers
 
                 if (nomeJaExiste)
                 {
-                    ModelState.AddModelError("Nome", "Este nome de usuário já está em uso. Escolha outro.");
+                    ModelState.AddModelError("Nome", "Este nome de usuário já está em uso.");
                     return View(user);
                 }
+
+                // ✅ Criptografa a senha antes de salvar
+                user.Senha = BCrypt.Net.BCrypt.HashPassword(user.Senha);
 
                 _context.Usuarios.Add(user);
                 await _context.SaveChangesAsync();
@@ -51,15 +54,18 @@ namespace Biblioteca_de_Jogos.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Busca apenas pelo nome (não pela senha, pois está criptografada)
                 var usuario = await _context.Usuarios
-                    .FirstOrDefaultAsync(u => u.Nome == model.Username && u.Senha == model.Password);
+                    .FirstOrDefaultAsync(u => u.Nome == model.Username);
 
-                if (usuario != null)
+                // ✅ Verifica se a senha informada bate com o hash salvo
+                if (usuario != null && BCrypt.Net.BCrypt.Verify(model.Password, usuario.Senha))
                 {
-                    HttpContext.Session.SetString("UsuarioId", usuario.Id.ToString());
+                    HttpContext.Session.SetString("UsuarioId",   usuario.Id.ToString());
                     HttpContext.Session.SetString("UsuarioNome", usuario.Nome);
-                    HttpContext.Session.SetString("IsAdmin", usuario.IsAdmin.ToString());
+                    HttpContext.Session.SetString("IsAdmin",     usuario.IsAdmin.ToString());
                     TempData["SuccessMessage"] = $"Bem-vindo, {usuario.Nome}!";
+
                     return RedirectToAction("Index", "Jogos");
                 }
 

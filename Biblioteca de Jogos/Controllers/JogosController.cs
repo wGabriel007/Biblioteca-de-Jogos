@@ -15,13 +15,13 @@ namespace Biblioteca_de_Jogos.Controllers
         }
 
         private bool IsAdmin() =>
-            HttpContext.Session.GetString("IsAdmin") == "True";
+            HttpContext.Session.GetString("IsAdmin") == "True"; 
 
         private string? UsuarioLogado() =>
             HttpContext.Session.GetString("UsuarioNome");
 
         private bool TemPermissao(Jogo jogo) =>
-            IsAdmin() || jogo.Dono == UsuarioLogado();
+            IsAdmin() || jogo.Dono == UsuarioLogado(); 
 
         // GET: /Jogos
         public async Task<IActionResult> Index()
@@ -30,6 +30,12 @@ namespace Biblioteca_de_Jogos.Controllers
                 return RedirectToAction("Loguin", "Home");
 
             var jogos = await _context.Jogos.ToListAsync();
+
+            // Conta solicitações pendentes para o usuário logado
+            ViewBag.TotalPendentes = await _context.Solicitacoes
+                .CountAsync(s => s.DonoNome == UsuarioLogado() &&
+                                 s.Status   == StatusSolicitacao.Pendente);
+
             return View(jogos);
         }
 
