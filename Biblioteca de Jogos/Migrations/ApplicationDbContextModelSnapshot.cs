@@ -22,7 +22,7 @@ namespace Biblioteca_de_Jogos.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Biblioteca_de_Jogos.Models.Emprestimo", b =>
+            modelBuilder.Entity("Biblioteca_de_Jogos.Models.Console", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,21 +30,17 @@ namespace Biblioteca_de_Jogos.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("DataEmprestimo")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Grupo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("JogoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("NameAmigo")
+                    b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("JogoId");
-
-                    b.ToTable("Emprestimos");
+                    b.ToTable("Consoles");
                 });
 
             modelBuilder.Entity("Biblioteca_de_Jogos.Models.Jogo", b =>
@@ -55,10 +51,13 @@ namespace Biblioteca_de_Jogos.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Console")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Dono")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EmprestadoPara")
                         .HasColumnType("nvarchar(max)");
@@ -87,30 +86,6 @@ namespace Biblioteca_de_Jogos.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Jogos");
-                });
-
-            modelBuilder.Entity("Biblioteca_de_Jogos.Models.ProgressoJogo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DataAtualizacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("JogoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Porcentagem")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("JogoId");
-
-                    b.ToTable("ProgressoJogos");
                 });
 
             modelBuilder.Entity("Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo", b =>
@@ -169,28 +144,6 @@ namespace Biblioteca_de_Jogos.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Usuarios");
-                });
-
-            modelBuilder.Entity("Biblioteca_de_Jogos.Models.Emprestimo", b =>
-                {
-                    b.HasOne("Biblioteca_de_Jogos.Models.Jogo", "Jogo")
-                        .WithMany()
-                        .HasForeignKey("JogoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Jogo");
-                });
-
-            modelBuilder.Entity("Biblioteca_de_Jogos.Models.ProgressoJogo", b =>
-                {
-                    b.HasOne("Biblioteca_de_Jogos.Models.Jogo", "Jogo")
-                        .WithMany()
-                        .HasForeignKey("JogoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Jogo");
                 });
 
             modelBuilder.Entity("Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo", b =>

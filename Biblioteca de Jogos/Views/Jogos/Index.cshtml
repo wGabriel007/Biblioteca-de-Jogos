@@ -47,14 +47,57 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input id="filtroNome" type="text" class="form-control"
+                           placeholder="Buscar por nome..." oninput="filtrar()" />
+                </div>
+                <div class="col-md-3">
+                    <select id="filtroConsole" class="form-select" onchange="filtrar()">
+                        <option value="">Todos os consoles</option>
+                        @foreach (var console in Model.Select(j => j.Console).Distinct().OrderBy(c => c))
+                        {
+                            <option value="@console">@console</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="filtroGenero" class="form-select" onchange="filtrar()">
+                        <option value="">Todos os gêneros</option>
+                        @foreach (var genero in Model.Select(j => j.Genero).Distinct().OrderBy(g => g))
+                        {
+                            <option value="@genero">@genero</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="filtroDisponivel" class="form-select" onchange="filtrar()">
+                        <option value=""> Todos</option>
+                        <option value="disponivel">Disponíveis</option>
+                        <option value="emprestado">Emprestados</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div id="semResultados" class="alert alert-info d-none">
+        Nenhum jogo encontrado com os filtros selecionados.
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="listaJogos">
         @foreach (var jogo in Model)
         {
             var temPermissao = isAdmin || jogo.Dono == usuarioLogado;
             var ehDono       = jogo.Dono == usuarioLogado;
 
-            <div class="col">
+            <div class="col jogo-card"
+                 data-nome="@jogo.Nome.ToLower()"
+                 data-console="@jogo.Console"
+                 data-genero="@jogo.Genero"
+                 data-disponivel="@(jogo.EstaEmprestado ? "emprestado" : "disponivel")">
                 <div class="card h-100 shadow-sm">
                     @if (!string.IsNullOrEmpty(jogo.FotoUrl))
                     {
@@ -64,6 +107,7 @@
                     <div class="card-body">
                         <h5 class="card-title">@jogo.Nome</h5>
                         <p class="card-text text-muted mb-1">🎯 @jogo.Genero</p>
+                        <p class="card-text text-muted mb-1">🎮 @jogo.Console</p>
                         <p class="card-text text-muted mb-1">⏱️ @jogo.HorasParaZerar horas para zerar</p>
                         <p class="card-text mb-1">👤 Dono: <strong>@jogo.Dono</strong></p>
 
@@ -94,8 +138,7 @@
 
                             @if (jogo.EstaEmprestado && ehDono)
                             {
-                                <form asp-controller="Emprestimo" asp-action="Devolver"
-                                      method="post">
+                                <form asp-controller="Emprestimo" asp-action="Devolver" method="post">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="jogoId" value="@jogo.Id" />
                                     <button type="submit" class="btn btn-sm btn-outline-success">
@@ -106,8 +149,7 @@
                         }
                         else if (!jogo.EstaEmprestado && jogo.Dono != usuarioLogado)
                         {
-                            <form asp-controller="Emprestimo" asp-action="Solicitar"
-                                  method="post">
+                            <form asp-controller="Emprestimo" asp-action="Solicitar" method="post">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="jogoId" value="@jogo.Id" />
                                 <button type="submit" class="btn btn-sm btn-outline-info">
@@ -127,3 +169,30 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function filtrar() {
+            const nome       = document.getElementById('filtroNome').value.toLowerCase();
+            const console    = document.getElementById('filtroConsole').value;
+            const genero     = document.getElementById('filtroGenero').value;
+            const disponivel = document.getElementById('filtroDisponivel').value;
+
+            const cards = document.querySelectorAll('.jogo-card');
+            let visiveis = 0;
+
+            cards.forEach(card => {
+                const nomeMatch       = card.dataset.nome.includes(nome);
+                const consoleMatch    = !console    || card.dataset.console    === console;
+                const generoMatch     = !genero     || card.dataset.genero     === genero;
+                const disponivelMatch = !disponivel || card.dataset.disponivel === disponivel;
+
+                const visivel = nomeMatch && consoleMatch && generoMatch && disponivelMatch;
+                card.style.display = visivel ? '' : 'none';
+                if (visivel) visiveis++;
+            });
+
+            document.getElementById('semResultados').classList.toggle('d-none', visiveis > 0);
+        }
+    </script>
+}
