@@ -39,13 +39,25 @@ namespace Biblioteca_de_Jogos.Controllers
             return View(jogos);
         }
 
+        private async Task CarregarConsoles(string? consoleSelecionado = null)
+        {
+            var consoles = await _context.Consoles
+                .OrderBy(c => c.Grupo)
+                .ThenBy(c => c.Nome)
+                .ToListAsync();
+
+            ViewBag.Consoles = consoles;
+            ViewBag.ConsoleSelecionado = consoleSelecionado;
+        }
+
         // GET: /Jogos/Create
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             if (UsuarioLogado() == null)
                 return RedirectToAction("Loguin", "Home");
 
+            await CarregarConsoles();
             return View();
         }
 
@@ -62,6 +74,7 @@ namespace Biblioteca_de_Jogos.Controllers
                 TempData["Success"] = "Jogo adicionado com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
+            await CarregarConsoles(jogo.Console);
             return View(jogo);
         }
 
@@ -81,6 +94,7 @@ namespace Biblioteca_de_Jogos.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            await CarregarConsoles(jogo.Console);
             return View(jogo);
         }
 
@@ -108,6 +122,7 @@ namespace Biblioteca_de_Jogos.Controllers
                 TempData["Success"] = "Jogo atualizado com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
+            await CarregarConsoles(jogo.Console);
             return View(jogo);
         }
 

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Biblioteca_de_Jogos.Data;
 using Biblioteca_de_Jogos.Models;
+using Console = Biblioteca_de_Jogos.Models.Console;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,7 +54,7 @@ using (var scope = app.Services.CreateScope())
         });
 
         await context.SaveChangesAsync();
-        Console.WriteLine("✅ Usuário admin criado com sucesso!");
+
     }
 }
 

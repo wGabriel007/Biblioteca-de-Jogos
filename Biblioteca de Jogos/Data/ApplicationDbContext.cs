@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Biblioteca_de_Jogos.Models;
+using Console = Biblioteca_de_Jogos.Models.Console;
 
 
 namespace Biblioteca_de_Jogos.Data
@@ -13,6 +14,7 @@ namespace Biblioteca_de_Jogos.Data
 
         public DbSet<Jogo> Jogos { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Console> Consoles { get; set; }
         public DbSet<SolicitacaoEmprestimo> Solicitacoes { get; set; }
             
     }
