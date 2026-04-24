@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Biblioteca_de_Jogos.Data;
-
+using Biblioteca_de_Jogos.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +10,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddSession();
 
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -35,5 +35,26 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Loguin}/{id?}")
     .WithStaticAssets();
 
+// Seed automático do admin ao iniciar a aplicação
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    var adminJaExiste = await context.Usuarios
+        .AnyAsync(u => u.Nome == "admin");
+
+    if (!adminJaExiste)
+    {
+        context.Usuarios.Add(new Usuario
+        {
+            Nome    = "admin",
+            Senha   = BCrypt.Net.BCrypt.HashPassword("admin123"),
+            IsAdmin = true
+        });
+
+        await context.SaveChangesAsync();
+        Console.WriteLine("✅ Usuário admin criado com sucesso!");
+    }
+}
 
 app.Run();
