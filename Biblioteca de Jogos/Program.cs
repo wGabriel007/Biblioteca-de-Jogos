@@ -12,6 +12,9 @@ builder.Services.AddSession();
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 
+builder.Services.AddScoped<Biblioteca_de_Jogos.Services.IEmailService,
+                            Biblioteca_de_Jogos.Services.EmailService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
