@@ -18,5 +18,10 @@ namespace Biblioteca_de_Jogos.Models
         public string Senha { get; set; } = string.Empty;
 
         public bool IsAdmin { get; set; } = false;
+
+        [Required(ErrorMessage = "O email é obrigatório")]
+        [StringLength(100)]
+        [EmailAddress(ErrorMessage = "Informe um e-mail válido")]
+        public string Email { get; set; } = string.Empty;
     }
 }

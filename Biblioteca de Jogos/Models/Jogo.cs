@@ -25,6 +25,7 @@ namespace Biblioteca_de_Jogos.Models
         public bool EstaEmprestado { get; set; }
 
         public string? EmprestadoPara { get; set; }
+        [Required(ErrorMessage = "O console é obrigatório")]
         public string Console { get; set; }
         public string Dono { get; set; } = string.Empty;
     }
