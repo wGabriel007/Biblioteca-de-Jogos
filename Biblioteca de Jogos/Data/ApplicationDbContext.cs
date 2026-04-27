@@ -16,6 +16,7 @@ namespace Biblioteca_de_Jogos.Data
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Console> Consoles { get; set; }
         public DbSet<SolicitacaoEmprestimo> Solicitacoes { get; set; }
+        public DbSet<CodigoRecuperacao>  CodigosRecuperacao { get; set; }
             
     }
 }

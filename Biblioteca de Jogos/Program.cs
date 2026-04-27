@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Biblioteca_de_Jogos.Data;
 using Biblioteca_de_Jogos.Models;
-using Console = Biblioteca_de_Jogos.Models.Console;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +11,9 @@ builder.Services.AddSession();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
+
+builder.Services.AddScoped<Biblioteca_de_Jogos.Services.IEmailService,
+                            Biblioteca_de_Jogos.Services.EmailService>();
 
 var app = builder.Build();
 
