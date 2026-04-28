@@ -64,17 +64,28 @@ namespace Biblioteca_de_Jogos.Controllers
         // GET: Caixa de notificações do usuário logado
         public async Task<IActionResult> Notificacoes()
         {
-            var usuario = UsuarioLogado();
-            if (usuario == null)
-                return RedirectToAction("Loguin", "Home");
+            var nomeUsuario = HttpContext.Session.GetString("UsuarioNome");
+            if (nomeUsuario == null) return RedirectToAction("Loguin", "Home");
 
-            var solicitacoes = await _context.Solicitacoes
+            // Pedidos recebidos nos seus jogos (você é o dono)
+            var pedidosRecebidos = await _context.Solicitacoes
                 .Include(s => s.Jogo)
-                .Where(s => s.DonoNome == usuario && s.Status == StatusSolicitacao.Pendente)
+                .Where(s => s.DonoNome == nomeUsuario && s.Status == StatusSolicitacao.Pendente)
                 .OrderByDescending(s => s.DataSolicitacao)
                 .ToListAsync();
 
-            return View(solicitacoes);
+            // Respostas dos seus pedidos (você é o solicitante)
+            var minhasRespostas = await _context.Solicitacoes
+                .Include(s => s.Jogo)
+                .Where(s => s.SolicitanteNome == nomeUsuario &&
+                            s.Status != StatusSolicitacao.Pendente &&
+                            !s.Visualizada)
+                .ToListAsync();
+
+            ViewBag.PedidosRecebidos = pedidosRecebidos;
+            ViewBag.MinhasRespostas  = minhasRespostas;
+
+            return View();
         }
 
         // POST: Aceitar solicitação
@@ -157,6 +168,36 @@ namespace Biblioteca_de_Jogos.Controllers
 
             TempData["Success"] = $"'{jogo.Nome}' marcado como devolvido!";
             return RedirectToAction("Index", "Jogos");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MinhasSolicitacoes()
+        {
+            var nomeUsuario = HttpContext.Session.GetString("UsuarioNome");
+            if (nomeUsuario == null) return RedirectToAction("Loguin", "Home");
+
+            var solicitacoes = await _context.Solicitacoes
+                .Include(s => s.Jogo)
+                .Where(s => s.SolicitanteNome == nomeUsuario &&
+                            s.Status != StatusSolicitacao.Pendente)
+                .OrderByDescending(s => s.DataSolicitacao)
+                .ToListAsync();
+
+            return View(solicitacoes);
+        }
+
+        // POST: Marcar solicitação como visualizada
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarcarVisualizada(int id)
+        {
+            var solicitacao = await _context.Solicitacoes.FindAsync(id);
+            if (solicitacao != null)
+            {
+                solicitacao.Visualizada = true;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Notificacoes");
         }
     }
 }

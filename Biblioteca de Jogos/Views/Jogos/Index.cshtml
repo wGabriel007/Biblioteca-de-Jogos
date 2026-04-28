@@ -4,6 +4,7 @@
     var usuarioLogado = Context.Session.GetString("UsuarioNome");
     var isAdmin = Context.Session.GetString("IsAdmin") == "True";
     var totalPendentes = ViewBag.TotalPendentes as int? ?? 0;
+    var totalRespostas = ViewBag.TotalRespostas as int? ?? 0;
 }
 
 <div class="container mt-4">
