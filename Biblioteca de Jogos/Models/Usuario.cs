@@ -14,7 +14,7 @@ namespace Biblioteca_de_Jogos.Models
         public string Nome { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "A senha é obrigatória")]
-        [StringLength(100, MinimumLength = 6)]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter no minimo 6 caracteres e no máximo 100.")]
         public string Senha { get; set; } = string.Empty;
 
         public bool IsAdmin { get; set; } = false;

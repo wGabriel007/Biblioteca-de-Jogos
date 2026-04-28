@@ -31,8 +31,18 @@ namespace Biblioteca_de_Jogos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cadastro(Usuario user)
         {
-            if (ModelState.IsValid)
+                if (ModelState.IsValid)
             {
+
+                var emailJaExiste = await _context.Usuarios
+                    .AnyAsync(u => u.Email == user.Email);
+
+                if (emailJaExiste)
+                {
+                    ModelState.AddModelError("Email", "Este Email já está em uso.");
+                    return View(user);
+                }
+
                 var nomeJaExiste = await _context.Usuarios
                     .AnyAsync(u => u.Nome == user.Nome);
 
@@ -47,8 +57,14 @@ namespace Biblioteca_de_Jogos.Controllers
 
                 _context.Usuarios.Add(user);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Usuário cadastrado com sucesso!";
-                return RedirectToAction("Loguin");
+
+                // Inicia a sessão automaticamente após o cadastro
+                HttpContext.Session.SetString("UsuarioId",   user.Id.ToString());
+                HttpContext.Session.SetString("UsuarioNome", user.Nome);
+                HttpContext.Session.SetString("IsAdmin",     user.IsAdmin.ToString());
+                TempData["SuccessMessage"] = $"Bem-vindo, {user.Nome}!";
+
+                return RedirectToAction("Index", "Jogos");
             }
             return View(user);
         }
@@ -61,7 +77,7 @@ namespace Biblioteca_de_Jogos.Controllers
             {
                 // Busca apenas pelo nome (não pela senha, pois está criptografada)
                 var usuario = await _context.Usuarios
-                    .FirstOrDefaultAsync(u => u.Nome == model.Username);
+                    .FirstOrDefaultAsync(u => u.Email == model.Email);
 
                 // Verifica se a senha informada bate com o hash salvo
                 if (usuario != null && BCrypt.Net.BCrypt.Verify(model.Password, usuario.Senha))
@@ -74,7 +90,7 @@ namespace Biblioteca_de_Jogos.Controllers
                     return RedirectToAction("Index", "Jogos");
                 }
 
-                ModelState.AddModelError("", "Usuário ou senha inválidos.");
+                ModelState.AddModelError("", "E-mail ou senha inválidos.");
             }
 
             return View(model);
