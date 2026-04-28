@@ -1,8 +1,8 @@
 ﻿@model IEnumerable<Biblioteca_de_Jogos.Models.Jogo>
 @{
     ViewData["Title"] = "Minha Biblioteca";
-    var usuarioLogado  = Context.Session.GetString("UsuarioNome");
-    var isAdmin        = Context.Session.GetString("IsAdmin") == "True";
+    var usuarioLogado = Context.Session.GetString("UsuarioNome");
+    var isAdmin = Context.Session.GetString("IsAdmin") == "True";
     var totalPendentes = ViewBag.TotalPendentes as int? ?? 0;
 }
 
@@ -17,12 +17,12 @@
             <span class="text-muted small">👤 @usuarioLogado</span>
 
             <a asp-controller="Emprestimo" asp-action="Notificacoes"
-               class="btn btn-outline-secondary btn-sm position-relative">
+                   class="btn btn-outline-secondary btn-sm position-relative">
                 ✉️
                 @if (totalPendentes > 0)
                 {
                     <span class="position-absolute top-0 start-100 translate-middle
-                                 badge rounded-pill bg-danger">
+                        badge rounded-pill bg-danger">
                         @totalPendentes
                     </span>
                 }
@@ -47,6 +47,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
+
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
             <div class="row g-2">
@@ -83,6 +84,15 @@
         </div>
     </div>
 
+    <ul class="nav nav-tabs mb-4" id="abas">
+        <li class="nav-item">
+            <button class="nav-link active" style="color: black" id="btn-meus" onclick="trocarAba('meus')"> Meus Jogos</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" style="color: black" id="btn-comunidade" onclick="trocarAba('comunidade')"> Comunidade</button>
+        </li>
+    </ul>
+
     <div id="semResultados" class="alert alert-info d-none">
         Nenhum jogo encontrado com os filtros selecionados.
     </div>
@@ -91,9 +101,11 @@
         @foreach (var jogo in Model)
         {
             var temPermissao = isAdmin || jogo.Dono == usuarioLogado;
-            var ehDono       = jogo.Dono == usuarioLogado;
+            var ehDono = jogo.Dono == usuarioLogado;
+            var aba = ehDono ? "meus" : "comunidade";
 
             <div class="col jogo-card"
+                 data-aba="@aba"
                  data-nome="@jogo.Nome.ToLower()"
                  data-console="@jogo.Console"
                  data-genero="@jogo.Genero"
@@ -126,14 +138,12 @@
                         @if (temPermissao)
                         {
                             <a asp-action="Edit" asp-route-id="@jogo.Id"
-                               class="btn btn-sm btn-outline-primary"> Editar</a>
+                               class="btn btn-sm btn-outline-primary">Editar</a>
 
                             <form asp-action="Delete" asp-route-id="@jogo.Id" method="post"
                                   onsubmit="return confirm('Remover @jogo.Nome?')">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                     Remover
-                                </button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
                             </form>
 
                             @if (jogo.EstaEmprestado && ehDono)
@@ -141,27 +151,21 @@
                                 <form asp-controller="Emprestimo" asp-action="Devolver" method="post">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="jogoId" value="@jogo.Id" />
-                                    <button type="submit" class="btn btn-sm btn-outline-success">
-                                         Devolvido
-                                    </button>
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Devolvido</button>
                                 </form>
                             }
                         }
-                        else if (!jogo.EstaEmprestado && jogo.Dono != usuarioLogado)
+                        else if (!jogo.EstaEmprestado)
                         {
                             <form asp-controller="Emprestimo" asp-action="Solicitar" method="post">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="jogoId" value="@jogo.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-info">
-                                     Pedir Emprestado
-                                </button>
+                                <button type="submit" class="btn btn-sm btn-outline-info">Pedir Emprestado</button>
                             </form>
                         }
-                        else if (jogo.EstaEmprestado && !ehDono)
+                        else
                         {
-                            <span class="text-muted small align-self-center">
-                                 Emprestado
-                            </span>
+                            <span class="text-muted small align-self-center">Emprestado</span>
                         }
                     </div>
                 </div>
@@ -172,6 +176,15 @@
 
 @section Scripts {
     <script>
+        let abaAtual = 'meus';
+
+        function trocarAba(aba) {
+            abaAtual = aba;
+            document.getElementById('btn-meus').classList.toggle('active', aba === 'meus');
+            document.getElementById('btn-comunidade').classList.toggle('active', aba === 'comunidade');
+            filtrar();
+        }
+
         function filtrar() {
             const nome       = document.getElementById('filtroNome').value.toLowerCase();
             const console    = document.getElementById('filtroConsole').value;
@@ -182,17 +195,20 @@
             let visiveis = 0;
 
             cards.forEach(card => {
+                const abaMatch        = card.dataset.aba === abaAtual;
                 const nomeMatch       = card.dataset.nome.includes(nome);
                 const consoleMatch    = !console    || card.dataset.console    === console;
                 const generoMatch     = !genero     || card.dataset.genero     === genero;
                 const disponivelMatch = !disponivel || card.dataset.disponivel === disponivel;
 
-                const visivel = nomeMatch && consoleMatch && generoMatch && disponivelMatch;
+                const visivel = abaMatch && nomeMatch && consoleMatch && generoMatch && disponivelMatch;
                 card.style.display = visivel ? '' : 'none';
                 if (visivel) visiveis++;
             });
 
             document.getElementById('semResultados').classList.toggle('d-none', visiveis > 0);
         }
+
+        filtrar();
     </script>
 }
