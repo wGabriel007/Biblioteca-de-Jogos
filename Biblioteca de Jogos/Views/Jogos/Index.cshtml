@@ -33,10 +33,10 @@
         </div>
     </div>
 
-    @if (TempData["Success"] != null)
+    @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show">
-            @TempData["Success"]
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }

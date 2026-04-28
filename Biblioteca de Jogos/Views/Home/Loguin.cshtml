@@ -60,12 +60,13 @@
         font-weight: 600;
         font-size: 16px;
         transition: all 0.3s ease;
-        margin-top: 20px;
+        margin-top: 10px;
     }
 
     .btn-login:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            color: white;
     }
 
     .form-check-label {
@@ -115,9 +116,9 @@
         @Html.AntiForgeryToken()
 
         <div class="mb-3">
-            <label asp-for="Username" class="form-label">Nome de Usuário</label>
-            <input asp-for="Username" class="form-control" placeholder="Digite seu nome de usuário" autocomplete="username" />
-            <span asp-validation-for="Username" class="text-danger"></span>
+            <label asp-for="Email" class="form-label">E-mail</label>
+            <input asp-for="Email" class="form-control" placeholder="Digite seu Email" autocomplete="email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
