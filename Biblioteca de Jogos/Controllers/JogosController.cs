@@ -15,26 +15,41 @@ namespace Biblioteca_de_Jogos.Controllers
         }
 
         private bool IsAdmin() =>
-            HttpContext.Session.GetString("IsAdmin") == "True"; 
+            HttpContext.Session.GetString("IsAdmin") == "True";
 
         private string? UsuarioLogado() =>
             HttpContext.Session.GetString("UsuarioNome");
 
         private bool TemPermissao(Jogo jogo) =>
-            IsAdmin() || jogo.Dono == UsuarioLogado(); 
+            IsAdmin() || jogo.Dono == UsuarioLogado();
 
         // GET: /Jogos
         public async Task<IActionResult> Index()
         {
-            if (UsuarioLogado() == null)
-                return RedirectToAction("Loguin", "Home");
+            var nomeUsuario = HttpContext.Session.GetString("UsuarioNome");
+            if (nomeUsuario == null) return RedirectToAction("Loguin", "Home");
 
             var jogos = await _context.Jogos.ToListAsync();
 
-            // Conta solicitações pendentes para o usuário logado
-            ViewBag.TotalPendentes = await _context.Solicitacoes
-                .CountAsync(s => s.DonoNome == UsuarioLogado() &&
-                                 s.Status   == StatusSolicitacao.Pendente);
+            // Solicitações pendentes exibidas nos cards
+            var solicitacoes = await _context.Solicitacoes
+                .Where(s => s.Status == StatusSolicitacao.Pendente)
+                .ToListAsync();
+
+            // Pedidos recebidos nos jogos do usuário (ele é o dono)
+            var pedidosRecebidos = solicitacoes
+                .Where(s => s.DonoNome == nomeUsuario)
+                .ToList();
+
+            // Respostas dos pedidos feitos pelo usuário (ele é o solicitante), ainda não visualizadas
+            var minhasRespostas = await _context.Solicitacoes
+                .Where(s => s.SolicitanteNome == nomeUsuario &&
+                            s.Status != StatusSolicitacao.Pendente &&
+                            !s.Visualizada)
+                .ToListAsync();
+
+            ViewBag.Solicitacoes = solicitacoes;
+            ViewBag.TotalPendentes = pedidosRecebidos.Count + minhasRespostas.Count;
 
             return View(jogos);
         }
