@@ -39,6 +39,30 @@ namespace Biblioteca_de_Jogos.Controllers
             return View(jogos);
         }
 
+        public async Task<IActionResult> MeusJogos()
+        {
+            var nomeUsuario = HttpContext.Session.GetString("UsuarioNome");
+            if (nomeUsuario == null) return RedirectToAction("Loguin", "Home");
+
+            var meusJogos = await _context.Jogos
+                .Where(j => j.Dono == nomeUsuario)
+                .ToListAsync();
+
+            return View(meusJogos);
+        }
+
+        public async Task<IActionResult> Comunidade()
+        {
+            var nomeUsuario = HttpContext.Session.GetString("UsuarioNome");
+            if (nomeUsuario == null) return RedirectToAction("Loguin", "Home");
+
+            var jogosOutros = await _context.Jogos
+                .Where(j => j.Dono != nomeUsuario)
+                .ToListAsync();
+
+            return View(jogosOutros);
+        }
+
         private async Task CarregarConsoles(string? consoleSelecionado = null)
         {
             var consoles = await _context.Consoles
