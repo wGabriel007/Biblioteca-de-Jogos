@@ -26,15 +26,17 @@ namespace Biblioteca_de_Jogos.Controllers
         // GET: /Jogos
         public async Task<IActionResult> Index()
         {
-            if (UsuarioLogado() == null)
-                return RedirectToAction("Loguin", "Home");
+            var nomeUsuario = HttpContext.Session.GetString("UsuarioNome");
+            if (nomeUsuario == null) return RedirectToAction("Loguin", "Home");
 
             var jogos = await _context.Jogos.ToListAsync();
 
-            // Conta solicitações pendentes para o usuário logado
-            ViewBag.TotalPendentes = await _context.Solicitacoes
-                .CountAsync(s => s.DonoNome == UsuarioLogado() &&
-                                 s.Status   == StatusSolicitacao.Pendente);
+            var solicitacoes = await _context.Solicitacoes
+                .Where(s => s.Status == StatusSolicitacao.Pendente)
+                .ToListAsync();
+
+            ViewBag.Solicitacoes   = solicitacoes;                                      
+            ViewBag.TotalPendentes = solicitacoes.Count(s => s.DonoNome == nomeUsuario);
 
             return View(jogos);
         }

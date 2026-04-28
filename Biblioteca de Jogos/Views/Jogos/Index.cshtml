@@ -133,6 +133,24 @@
                         {
                             <span class="badge bg-success">✅ Disponível</span>
                         }
+
+                        @{ 
+                            var solicitacoes = ViewBag.Solicitacoes as List<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>
+                                               ?? new List<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>();
+                            var solicitacoesDoJogo = solicitacoes.Where(s => s.JogoId == jogo.Id).ToList();
+                        }
+                        @if (solicitacoesDoJogo.Any())
+                        {
+                            <div class="mt-2">
+                                @foreach (var s in solicitacoesDoJogo)
+                                {
+                                    <div class="alert alert-warning py-1 px-2 mb-1 small">
+                                        <strong>@s.SolicitanteNome</strong> solicitou empréstimo
+                                        <span class="badge bg-warning text-dark">@s.Status</span>
+                                    </div>
+                                }
+                            </div>
+                        }
                     </div>
                     <div class="card-footer d-flex flex-wrap gap-2">
                         @if (temPermissao)
