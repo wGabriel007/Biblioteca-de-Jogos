@@ -27,9 +27,10 @@ namespace Biblioteca_de_Jogos.Services
             email.Body = new TextPart("html") { Text = corpo };
 
             using var smtp = new SmtpClient();
-            await smtp.ConnectAsync(_config["Email:SmtpHost"],
-                                    int.Parse(_config["Email:SmtpPort"]!),
-                                    MailKit.Security.SecureSocketOptions.StartTls);
+            await smtp.ConnectAsync(
+                _config["Email:SmtpHost"],
+                int.Parse(_config["Email:SmtpPort"]!),
+                MailKit.Security.SecureSocketOptions.StartTls);
             await smtp.AuthenticateAsync(_config["Email:Remetente"],
                                          _config["Email:SenhaApp"]);
             await smtp.SendAsync(email);

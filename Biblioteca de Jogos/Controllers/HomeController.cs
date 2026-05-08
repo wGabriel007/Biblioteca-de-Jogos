@@ -35,7 +35,7 @@ namespace Biblioteca_de_Jogos.Controllers
             {
 
                 var emailJaExiste = await _context.Usuarios
-                    .AnyAsync(u => u.Email == user.Email);
+                    .AnyAsync(u => u.str_Email == user.str_Email);
 
                 if (emailJaExiste)
                 {
@@ -44,7 +44,7 @@ namespace Biblioteca_de_Jogos.Controllers
                 }
 
                 var nomeJaExiste = await _context.Usuarios
-                    .AnyAsync(u => u.Nome == user.Nome);
+                    .AnyAsync(u => u.str_Nome == user.str_Nome);
 
                 if (nomeJaExiste)
                 {
@@ -53,16 +53,16 @@ namespace Biblioteca_de_Jogos.Controllers
                 }
 
                 // Criptografa a senha antes de salvar
-                user.Senha = BCrypt.Net.BCrypt.HashPassword(user.Senha);
+                user.str_Senha = BCrypt.Net.BCrypt.HashPassword(user.str_Senha);
 
                 _context.Usuarios.Add(user);
                 await _context.SaveChangesAsync();
 
                 // Inicia a sessão automaticamente após o cadastro
-                HttpContext.Session.SetString("UsuarioId",   user.Id.ToString());
-                HttpContext.Session.SetString("UsuarioNome", user.Nome);
-                HttpContext.Session.SetString("IsAdmin",     user.IsAdmin.ToString());
-                TempData["SuccessMessage"] = $"Bem-vindo, {user.Nome}!";
+                HttpContext.Session.SetString("UsuarioId",   user.int_Id.ToString());
+                HttpContext.Session.SetString("UsuarioNome", user.str_Nome);
+                HttpContext.Session.SetString("IsAdmin",     user.bool_Admin.ToString());
+                TempData["SuccessMessage"] = $"Bem-vindo, {user.str_Nome}!";
 
                 return RedirectToAction("Index", "Jogos");
             }
@@ -77,15 +77,15 @@ namespace Biblioteca_de_Jogos.Controllers
             {
                 // Busca apenas pelo nome (não pela senha, pois está criptografada)
                 var usuario = await _context.Usuarios
-                    .FirstOrDefaultAsync(u => u.Email == model.Email);
+                    .FirstOrDefaultAsync(u => u.str_Email == model.Email);
 
                 // Verifica se a senha informada bate com o hash salvo
-                if (usuario != null && BCrypt.Net.BCrypt.Verify(model.Password, usuario.Senha))
+                if (usuario != null && BCrypt.Net.BCrypt.Verify(model.Password, usuario.str_Senha))
                 {
-                    HttpContext.Session.SetString("UsuarioId",   usuario.Id.ToString());
-                    HttpContext.Session.SetString("UsuarioNome", usuario.Nome);
-                    HttpContext.Session.SetString("IsAdmin",     usuario.IsAdmin.ToString());
-                    TempData["SuccessMessage"] = $"Bem-vindo, {usuario.Nome}!";
+                    HttpContext.Session.SetString("UsuarioId",   usuario.int_Id.ToString());
+                    HttpContext.Session.SetString("UsuarioNome", usuario.str_Nome);
+                    HttpContext.Session.SetString("IsAdmin",     usuario.bool_Admin.ToString());
+                    TempData["SuccessMessage"] = $"Bem-vindo, {usuario.str_Nome}!";
 
                     return RedirectToAction("Index", "Jogos");
                 }
@@ -115,7 +115,7 @@ namespace Biblioteca_de_Jogos.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.Email == model.Email);
+                .FirstOrDefaultAsync(u => u.str_Email == model.Email);
 
             if (usuario == null)
             {
@@ -127,9 +127,9 @@ namespace Biblioteca_de_Jogos.Controllers
 
             _context.CodigosRecuperacao.Add(new CodigoRecuperacao
             {
-                Email     = model.Email,
-                Codigo    = codigo,
-                Expiracao = DateTime.UtcNow.AddMinutes(15)
+                txt_Email     = model.Email,
+                txt_Codigo    = codigo,
+                ts_Expiracao = DateTime.UtcNow.AddMinutes(15)
             });
             await _context.SaveChangesAsync();
 
@@ -161,10 +161,10 @@ namespace Biblioteca_de_Jogos.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var registro = await _context.CodigosRecuperacao
-                .Where(c => c.Email  == model.Email  &&
-                            c.Codigo == model.Codigo &&
-                            !c.Usado &&
-                            c.Expiracao > DateTime.UtcNow)
+                .Where(c => c.txt_Email  == model.Email  &&
+                            c.txt_Codigo == model.Codigo &&
+                            !c.bool_Usado &&
+                            c.ts_Expiracao > DateTime.UtcNow)
                 .FirstOrDefaultAsync();
 
             if (registro == null)
@@ -192,10 +192,10 @@ namespace Biblioteca_de_Jogos.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var registro = await _context.CodigosRecuperacao
-                .FirstOrDefaultAsync(c => c.Email  == model.Email  &&
-                                          c.Codigo == model.Codigo &&
-                                          !c.Usado &&
-                                          c.Expiracao > DateTime.UtcNow);
+                .FirstOrDefaultAsync(c => c.txt_Email  == model.Email  &&
+                                          c.txt_Codigo == model.Codigo &&
+                                          !c.bool_Usado &&
+                                          c.ts_Expiracao > DateTime.UtcNow);
             if (registro == null)
             {
                 ModelState.AddModelError("", "Sessão expirada. Solicite um novo código.");
@@ -203,12 +203,12 @@ namespace Biblioteca_de_Jogos.Controllers
             }
 
             var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.Email == model.Email);
+                .FirstOrDefaultAsync(u => u.str_Email == model.Email);
 
             if (usuario == null) return NotFound();
 
-            usuario.Senha  = BCrypt.Net.BCrypt.HashPassword(model.NovaSenha);
-            registro.Usado = true;
+            usuario.str_Senha  = BCrypt.Net.BCrypt.HashPassword(model.NovaSenha);
+            registro.bool_Usado = true;
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Senha alterada com sucesso! Faça login.";

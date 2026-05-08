@@ -1,4 +1,5 @@
 @model IEnumerable<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>
+@using Biblioteca_de_Jogos.Models
 @{
     ViewData["Title"] = "Notificações";
     var pedidosRecebidos = ViewBag.PedidosRecebidos as List<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>
@@ -34,26 +35,26 @@
                 <div class="col-md-6">
                     <div class="card shadow-sm border-warning">
                         <div class="card-body d-flex gap-3 align-items-center">
-                            @if (!string.IsNullOrEmpty(s.Jogo?.FotoUrl))
+                            @if (!string.IsNullOrEmpty(s.Jogo?.txt_FotoUrl))
                             {
-                                <img src="@s.Jogo.FotoUrl"
+                                <img src="@s.Jogo.txt_FotoUrl"
                                      style="height:70px; border-radius:8px; object-fit:cover;" />
                             }
                             <div>
-                                <h6 class="mb-1">🎮 @s.Jogo?.Nome</h6>
-                                <p class="mb-1">👤 <strong>@s.SolicitanteNome</strong> quer este jogo</p>
-                                <small class="text-muted">📅 @s.DataSolicitacao.ToString("dd/MM/yyyy HH:mm")</small>
+                                <h6 class="mb-1">🎮 @s.Jogo?.txt_Nome</h6>
+                                <p class="mb-1">👤 <strong>@s.str_SolicitanteNome</strong> quer este jogo</p>
+                                <small class="text-muted">📅 @s.ts_DataSolicitacao.ToString("dd/MM/yyyy HH:mm")</small>
                             </div>
                         </div>
                         <div class="card-footer d-flex gap-2">
                             <form asp-controller="Emprestimo" asp-action="Aceitar" method="post" class="w-50">
                                 @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@s.Id" />
+                                <input type="hidden" name="id" value="@s.int_Id" />
                                 <button type="submit" class="btn btn-success w-100">✅ Aceitar</button>
                             </form>
                             <form asp-controller="Emprestimo" asp-action="Rejeitar" method="post" class="w-50">
                                 @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@s.Id" />
+                                <input type="hidden" name="id" value="@s.int_Id" />
                                 <button type="submit" class="btn btn-danger w-100">❌ Rejeitar</button>
                             </form>
                         </div>
@@ -74,29 +75,29 @@
         <div class="row g-3">
             @foreach (var s in minhasRespostas)
             {
-                var (borda, icone, texto) = s.Status == Biblioteca_de_Jogos.Models.StatusSolicitacao.Aceito
+                var (borda, icone, texto) = s.int_Status == (int)StatusSolicitacao.Aceito
                     ? ("border-success", "✅", "Pedido ACEITO!")
                     : ("border-danger",  "❌", "Pedido RECUSADO.");
 
                 <div class="col-md-6">
                     <div class="card shadow-sm @borda">
                         <div class="card-body d-flex gap-3 align-items-center">
-                            @if (!string.IsNullOrEmpty(s.Jogo?.FotoUrl))
+                            @if (!string.IsNullOrEmpty(s.Jogo?.txt_FotoUrl))
                             {
-                                <img src="@s.Jogo.FotoUrl"
+                                <img src="@s.Jogo.txt_FotoUrl"
                                      style="height:70px; border-radius:8px; object-fit:cover;" />
                             }
                             <div>
-                                <h6 class="mb-1">🎮 @s.Jogo?.Nome</h6>
+                                <h6 class="mb-1">🎮 @s.Jogo?.txt_Nome</h6>
                                 <p class="mb-1"><strong>@icone @texto</strong></p>
-                                <p class="mb-1 text-muted small">👤 Dono: @s.DonoNome</p>
-                                <small class="text-muted">📅 @s.DataSolicitacao.ToString("dd/MM/yyyy HH:mm")</small>
+                                <p class="mb-1 text-muted small">👤 Dono: @s.str_DonoNome</p>
+                                <small class="text-muted">📅 @s.ts_DataSolicitacao.ToString("dd/MM/yyyy HH:mm")</small>
                             </div>
                         </div>
                         <div class="card-footer">
                             <form asp-controller="Emprestimo" asp-action="MarcarVisualizada" method="post">
                                 @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@s.Id" />
+                                <input type="hidden" name="id" value="@s.int_Id" />
                                 <button type="submit" class="btn btn-outline-secondary w-100">Confirmar</button>
                             </form>
                         </div>

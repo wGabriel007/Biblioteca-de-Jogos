@@ -1,31 +1,34 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Biblioteca_de_Jogos.Models
 {
-    public enum StatusSolicitacao
-    {
-        Pendente,
-        Aceito,
-        Rejeitado
-    }
-
+    [Table("Solicitacoes")]
     public class SolicitacaoEmprestimo
     {
-        public int Id { get; set; }
+        [Key]
+        [Column("Id")]
+        public int int_Id { get; set; }
 
-        public int JogoId { get; set; }
+        [Column("JogoId")]
+        public int int_JogoId { get; set; }
+
+        [Column("SolicitanteNome")]
+        public string str_SolicitanteNome { get; set; } = string.Empty;
+
+        [Column("DonoNome")]
+        public string str_DonoNome { get; set; } = string.Empty;
+
+        [Column("Status")]
+        public int int_Status { get; set; }
+
+        [Column("DataSolicitacao")]
+        public DateTime ts_DataSolicitacao { get; set; }
+
+        [Column("Visualizada")]
+        public bool bool_Visualizada { get; set; }
+
+        [ForeignKey("int_JogoId")]
         public Jogo? Jogo { get; set; }
-
-        [Required]
-        public string SolicitanteNome { get; set; } = string.Empty;
-
-        [Required]
-        public string DonoNome { get; set; } = string.Empty;
-
-        public StatusSolicitacao Status { get; set; } = StatusSolicitacao.Pendente;
-
-        public DateTime DataSolicitacao { get; set; } = DateTime.UtcNow;
-
-        public bool Visualizada { get; set; } = false;
     }
 }

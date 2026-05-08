@@ -7,16 +7,19 @@ namespace Biblioteca_de_Jogos.Models
     public class CodigoRecuperacao
     {
         [Key]
-        public int Id { get; set; }
+        [Column("Id")]
+        public int int_Id { get; set; }
 
-        [Required]
-        public string Email { get; set; } = string.Empty;
+        [Column("Email")]
+        public string txt_Email { get; set; } = string.Empty;
 
-        [Required]
-        public string Codigo { get; set; } = string.Empty;
+        [Column("Codigo")]
+        public string txt_Codigo { get; set; } = string.Empty;
 
-        public DateTime Expiracao { get; set; }
+        [Column("Expiracao")]
+        public DateTime ts_Expiracao { get; set; }
 
-        public bool Usado { get; set; } = false;
+        [Column("Usado")]
+        public bool bool_Usado { get; set; }
     }
 }

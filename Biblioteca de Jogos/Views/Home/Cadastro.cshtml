@@ -103,20 +103,20 @@
     <form asp-action="Cadastro" method="post">
         @Html.AntiForgeryToken()
         <div class="mb-3">
-            <label asp-for="Email" class="form-label">E-mail</label>
-            <input asp-for="Email" class="form-control" placeholder="Digite o E-mail" autocomplete="email" />
-            <span asp-validation-for="Email" class="text-danger"></span>
+            <label asp-for="str_Email" class="form-label">E-mail</label>
+            <input asp-for="str_Email" class="form-control" placeholder="Digite o E-mail" autocomplete="email" />
+            <span asp-validation-for="str_Email" class="text-danger"></span>
         </div>
         <div class="mb-3">
-            <label asp-for="Nome" class="form-label">Nome de Usuário</label>
-            <input asp-for="Nome" class="form-control" placeholder="Digite seu nome" autocomplete="username" />
-            <span asp-validation-for="Nome" class="text-danger"></span>
+            <label asp-for="str_Nome" class="form-label">Nome de Usuário</label>
+            <input asp-for="str_Nome" class="form-control" placeholder="Digite seu nome" autocomplete="username" />
+            <span asp-validation-for="str_Nome" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Senha" class="form-label">Senha</label>
-            <input asp-for="Senha" type="password" class="form-control" placeholder="Digite sua senha (mínimo 6 caracteres)" autocomplete="new-password" />
-            <span asp-validation-for="Senha" class="text-danger"></span>
+            <label asp-for="str_Senha" class="form-label">Senha</label>
+            <input asp-for="str_Senha" type="password" class="form-control" placeholder="Digite sua senha (mínimo 6 caracteres)" autocomplete="new-password" />
+            <span asp-validation-for="str_Senha" class="text-danger"></span>
         </div>
 
         <button type="submit" class="btn btn-cadastrar">

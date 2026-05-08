@@ -1,34 +1,45 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Biblioteca_de_Jogos.Models
 {
+    [Table("Jogos")]
     public class Jogo
     {
-        public int Id { get; set; }
+        [Key]
+        [Column("Id")]
+        public int int_Id { get; set; }
 
         [Required(ErrorMessage = "O nome do jogo é obrigatório")]
-        [StringLength(100, ErrorMessage = "O nome deve ter no máximo 100 caracteres")]
-        public string Nome { get; set; } = string.Empty;
+        [StringLength(100)]
+        [Column("Nome")]
+        public string txt_Nome { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O gênero é obrigatório")]
-        [StringLength(50, ErrorMessage = "O gênero deve ter no máximo 50 caracteres")]
-        public string Genero { get; set; } = string.Empty;
+        [StringLength(50)]
+        [Column("Genero")]
+        public string txt_Genero { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "As horas para zerar são obrigatórias")]
-        [Range(0, 9999, ErrorMessage = "Informe um valor entre 0 e 9999")]
-        public int HorasParaZerar { get; set; }
+        [Range(0, 9999)]
+        [Column("HorasParaZerar")]
+        public int int_HorasParaZerar { get; set; }
 
-        [Required(ErrorMessage = "A foto é obrigatória")]
-        [StringLength(500, ErrorMessage = "A foto deve ser um URL válido para aparecer no sistema.")]
-        public string? FotoUrl { get; set; }
+        [StringLength(500)]
+        [Column("FotoUrl")]
+        public string? txt_FotoUrl { get; set; }
 
-        public bool EstaEmprestado { get; set; }
+        [Column("EstaEmprestado")]
+        public bool bool_EstaEmprestado { get; set; }
 
-        public string? EmprestadoPara { get; set; }
+        [Column("EmprestadoPara")]
+        public string? str_EmprestadoPara { get; set; }
 
         [Required(ErrorMessage = "O console é obrigatório")]
-        public string Console { get; set; } = string.Empty;
+        [Column("Console")]
+        public string txt_Console { get; set; } = string.Empty;
 
-        public string Dono { get; set; } = string.Empty;
+        [Column("Dono")]
+        public string txt_Dono { get; set; } = string.Empty;
     }
 }
