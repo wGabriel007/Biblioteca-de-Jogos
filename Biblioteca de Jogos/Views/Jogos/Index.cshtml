@@ -59,7 +59,7 @@
                 <div class="col-md-3">
                     <select id="filtroConsole" class="form-select" onchange="filtrar()">
                         <option value="">Todos os consoles</option>
-                        @foreach (var console in Model.Select(j => j.Console).Distinct().OrderBy(c => c))
+                        @foreach (var console in Model.Select(j => j.txt_Console).Distinct().OrderBy(c => c))
                         {
                             <option value="@console">@console</option>
                         }
@@ -68,7 +68,7 @@
                 <div class="col-md-3">
                     <select id="filtroGenero" class="form-select" onchange="filtrar()">
                         <option value="">Todos os gêneros</option>
-                        @foreach (var genero in Model.Select(j => j.Genero).Distinct().OrderBy(g => g))
+                        @foreach (var genero in Model.Select(j => j.txt_Genero).Distinct().OrderBy(g => g))
                         {
                             <option value="@genero">@genero</option>
                         }
@@ -101,44 +101,47 @@
     <div class="row row-cols-1 row-cols-md-3 g-4" id="listaJogos">
         @foreach (var jogo in Model)
         {
-            var temPermissao = isAdmin || jogo.Dono == usuarioLogado;
-            var ehDono = jogo.Dono == usuarioLogado;
+            var temPermissao = isAdmin || jogo.txt_Dono == usuarioLogado;
+            var ehDono = jogo.txt_Dono == usuarioLogado;
             var aba = ehDono ? "meus" : "comunidade";
 
             <div class="col jogo-card"
                  data-aba="@aba"
-                 data-nome="@jogo.Nome.ToLower()"
-                 data-console="@jogo.Console"
-                 data-genero="@jogo.Genero"
-                 data-disponivel="@(jogo.EstaEmprestado ? "emprestado" : "disponivel")">
+                 data-nome="@jogo.txt_Nome.ToLower()"
+                 data-console="@jogo.txt_Console"
+                 data-genero="@jogo.txt_Genero"
+                 data-disponivel="@(jogo.bool_EstaEmprestado ? "emprestado" : "disponivel")">
                 <div class="card h-100 shadow-sm">
-                    @if (!string.IsNullOrEmpty(jogo.FotoUrl))
+                    @if (!string.IsNullOrEmpty(jogo.txt_FotoUrl))
                     {
-                        <img src="@jogo.FotoUrl" class="card-img-top"
-                             style="height:180px; object-fit:cover;" alt="@jogo.Nome" />
+                        <img src="@jogo.txt_FotoUrl" class="card-img-top"
+                             style="height:180px; object-fit:cover;" alt="@jogo.txt_Nome" />
                     }
                     <div class="card-body">
-                        <h5 class="card-title">@jogo.Nome</h5>
-                        <p class="card-text text-muted mb-1">🎯 @jogo.Genero</p>
-                        <p class="card-text text-muted mb-1">🎮 @jogo.Console</p>
-                        <p class="card-text text-muted mb-1">⏱️ @jogo.HorasParaZerar horas para zerar</p>
-                        <p class="card-text mb-1">👤 Dono: <strong>@jogo.Dono</strong></p>
+                        <h5 class="card-title">@jogo.txt_Nome</h5>
+                        <p class="card-text text-muted mb-1">🎯 @jogo.txt_Genero</p>
+                        <p class="card-text text-muted mb-1">🎮 @jogo.txt_Console</p>
+                        <p class="card-text text-muted mb-1">⏱️ @jogo.int_HorasParaZerar horas para zerar</p>
+                        <p class="card-text mb-1">👤 Dono: <strong>@jogo.txt_Dono</strong></p>
 
-                        @if (jogo.EstaEmprestado)
+                        @if (jogo.bool_EstaEmprestado)
                         {
                             <span class="badge bg-warning text-dark">
-                                📤 Emprestado para: @jogo.EmprestadoPara
+                                📤 Emprestado para: @jogo.str_EmprestadoPara
                             </span>
+                        }
+                        else if(!jogo.bool_Disponivel)
+                        {
+                            <span class="badge bg-secondary">🔒 Indisponível</span>
                         }
                         else
                         {
                             <span class="badge bg-success">✅ Disponível</span>
                         }
-
                         @{ 
                             var solicitacoes = ViewBag.Solicitacoes as List<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>
                                                ?? new List<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>();
-                            var solicitacoesDoJogo = solicitacoes.Where(s => s.JogoId == jogo.Id).ToList();
+                            var solicitacoesDoJogo = solicitacoes.Where(s => s.int_JogoId == jogo.int_Id).ToList();
                         }
                         @if (solicitacoesDoJogo.Any())
                         {
@@ -146,8 +149,7 @@
                                 @foreach (var s in solicitacoesDoJogo)
                                 {
                                     <div class="alert alert-warning py-1 px-2 mb-1 small">
-                                        <strong>@s.SolicitanteNome</strong> solicitou empréstimo
-                                        <span class="badge bg-warning text-dark">@s.Status</span>
+                                        <strong>@s.str_SolicitanteNome</strong> solicitou empréstimo
                                     </div>
                                 }
                             </div>
@@ -156,35 +158,39 @@
                     <div class="card-footer d-flex flex-wrap gap-2">
                         @if (temPermissao)
                         {
-                            <a asp-action="Edit" asp-route-id="@jogo.Id"
+                            <a asp-action="Edit" asp-route-id="@jogo.int_Id"
                                class="btn btn-sm btn-outline-primary">Editar</a>
 
-                            <form asp-action="Delete" asp-route-id="@jogo.Id" method="post"
-                                  onsubmit="return confirm('Remover @jogo.Nome?')">
+                            <form asp-action="Delete" asp-route-id="@jogo.int_Id" method="post"
+                                  onsubmit="return confirm('Remover @jogo.txt_Nome?')">
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
                             </form>
 
-                            @if (jogo.EstaEmprestado && ehDono)
+                            @if (jogo.bool_EstaEmprestado && ehDono)
                             {
                                 <form asp-controller="Emprestimo" asp-action="Devolver" method="post">
                                     @Html.AntiForgeryToken()
-                                    <input type="hidden" name="jogoId" value="@jogo.Id" />
+                                    <input type="hidden" name="jogoId" value="@jogo.int_Id" />
                                     <button type="submit" class="btn btn-sm btn-outline-success">Devolvido</button>
                                 </form>
                             }
                         }
-                        else if (!jogo.EstaEmprestado)
+                        else if (!jogo.bool_EstaEmprestado && jogo.bool_Disponivel)
                         {
                             <form asp-controller="Emprestimo" asp-action="Solicitar" method="post">
                                 @Html.AntiForgeryToken()
-                                <input type="hidden" name="jogoId" value="@jogo.Id" />
+                                <input type="hidden" name="jogoId" value="@jogo.int_Id" />
                                 <button type="submit" class="btn btn-sm btn-outline-info">Pedir Emprestado</button>
                             </form>
                         }
-                        else
+                        else if (jogo.bool_EstaEmprestado)
                         {
                             <span class="text-muted small align-self-center">Emprestado</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted small align-self-center">🔒 Indisponível</span>
                         }
                     </div>
                 </div>

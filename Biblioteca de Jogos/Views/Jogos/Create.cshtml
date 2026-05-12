@@ -4,7 +4,7 @@
     var consoles           = ViewBag.Consoles as List<Biblioteca_de_Jogos.Models.Console>
                              ?? new List<Biblioteca_de_Jogos.Models.Console>();
     var consoleSelecionado = ViewBag.ConsoleSelecionado as string ?? "";
-    var grupos             = consoles.GroupBy(c => c.Grupo);
+    var grupos             = consoles.GroupBy(c => c.str_Grupo);
 }
 
 <div class="container mt-4">
@@ -18,47 +18,60 @@
                     <form asp-action="Create" method="post">
 
                         <div class="mb-3">
-                            <label asp-for="Nome" class="form-label">Nome do Jogo</label>
-                            <input asp-for="Nome" class="form-control"
+                            <label asp-for="txt_Nome" class="form-label">Nome do Jogo</label>
+                            <input asp-for="txt_Nome" class="form-control"
                                    placeholder="Ex: The Last of Us" />
-                            <span asp-validation-for="Nome" class="text-danger"></span>
+                            <span asp-validation-for="txt_Nome" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Genero" class="form-label">Gênero</label>
-                            <input asp-for="Genero" class="form-control"
+                            <label asp-for="txt_Genero" class="form-label">Gênero</label>
+                            <input asp-for="txt_Genero" class="form-control"
                                    placeholder="Ex: Aventura, RPG, FPS" />
-                            <span asp-validation-for="Genero" class="text-danger"></span>
+                            <span asp-validation-for="txt_Genero" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="HorasParaZerar" class="form-label">Horas para Zerar</label>
-                            <input asp-for="HorasParaZerar" class="form-control"
+                            <label asp-for="int_HorasParaZerar" class="form-label">Horas para Zerar</label>
+                            <input asp-for="int_HorasParaZerar" class="form-control"
                                    type="number" min="0" />
-                            <span asp-validation-for="HorasParaZerar" class="text-danger"></span>
+                            <span asp-validation-for="int_HorasParaZerar" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="FotoUrl" class="form-label">URL da Capa (opcional)</label>
-                            <input asp-for="FotoUrl" class="form-control"
+                            <label asp-for="txt_FotoUrl" class="form-label">URL da Capa (opcional)</label>
+                            <input asp-for="txt_FotoUrl" class="form-control"
                                    placeholder="https://..." />
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Console" class="form-label">Console</label>
-                            <select asp-for="Console" class="form-select">
+                            <label asp-for="txt_Console" class="form-label">Console</label>
+                            <select asp-for="txt_Console" class="form-select">
                                 <option value="">Selecione o console</option>
                                 @foreach (var grupo in grupos)
                                 {
                                     <optgroup label="@grupo.Key">
                                         @foreach (var c in grupo)
                                         {
-                                            <option value="@c.Nome">@c.Nome</option>
+                                            <option value="@c.str_Nome">@c.str_Nome</option>
                                         }
                                     </optgroup>
                                 }
                             </select>
-                            <span asp-validation-for="Console" class="text-danger"></span>
+                            <span asp-validation-for="txt_Console" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Disponibilidade para Empréstimo</label>
+                            <div class="form-check form-switch">
+                                <input asp-for="bool_Disponivel" class="form-check-input"
+                                       type="checkbox" role="switch" id="switchDisponivel" checked />
+                                <label class="form-check-label" for="switchDisponivel">
+                                    Disponível para empréstimo
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                Se desmarcado, nenhum usuário poderá solicitar este jogo.
+                            </small>
                         </div>
                         <div class="d-flex gap-2 mt-3">
                             <button type="submit" class="btn btn-primary"> Salvar</button>

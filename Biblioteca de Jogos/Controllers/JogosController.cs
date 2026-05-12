@@ -21,7 +21,7 @@ namespace Biblioteca_de_Jogos.Controllers
             HttpContext.Session.GetString("UsuarioNome");
 
         private bool TemPermissao(Jogo jogo) =>
-            IsAdmin() || jogo.Dono == UsuarioLogado();
+            IsAdmin() || jogo.txt_Dono == UsuarioLogado();
 
         // GET: /Jogos
         public async Task<IActionResult> Index()
@@ -33,19 +33,19 @@ namespace Biblioteca_de_Jogos.Controllers
 
             // Solicitações pendentes exibidas nos cards
             var solicitacoes = await _context.Solicitacoes
-                .Where(s => s.Status == StatusSolicitacao.Pendente)
+                .Where(s => s.int_Status == (int)StatusSolicitacao.Pendente)
                 .ToListAsync();
 
             // Pedidos recebidos nos jogos do usuário (ele é o dono)
             var pedidosRecebidos = solicitacoes
-                .Where(s => s.DonoNome == nomeUsuario)
+                .Where(s => s.str_DonoNome == nomeUsuario)
                 .ToList();
 
             // Respostas dos pedidos feitos pelo usuário (ele é o solicitante), ainda não visualizadas
             var minhasRespostas = await _context.Solicitacoes
-                .Where(s => s.SolicitanteNome == nomeUsuario &&
-                            s.Status != StatusSolicitacao.Pendente &&
-                            !s.Visualizada)
+                .Where(s => s.str_SolicitanteNome == nomeUsuario &&
+                            s.int_Status != (int)StatusSolicitacao.Pendente &&
+                            !s.bool_Visualizada)
                 .ToListAsync();
 
             ViewBag.Solicitacoes = solicitacoes;
@@ -60,7 +60,7 @@ namespace Biblioteca_de_Jogos.Controllers
             if (nomeUsuario == null) return RedirectToAction("Loguin", "Home");
 
             var meusJogos = await _context.Jogos
-                .Where(j => j.Dono == nomeUsuario)
+                .Where(j => j.txt_Dono == nomeUsuario)
                 .ToListAsync();
 
             return View(meusJogos);
@@ -72,7 +72,7 @@ namespace Biblioteca_de_Jogos.Controllers
             if (nomeUsuario == null) return RedirectToAction("Loguin", "Home");
 
             var jogosOutros = await _context.Jogos
-                .Where(j => j.Dono != nomeUsuario)
+                .Where(j => j.txt_Dono != nomeUsuario)
                 .ToListAsync();
 
             return View(jogosOutros);
@@ -81,8 +81,8 @@ namespace Biblioteca_de_Jogos.Controllers
         private async Task CarregarConsoles(string? consoleSelecionado = null)
         {
             var consoles = await _context.Consoles
-                .OrderBy(c => c.Grupo)
-                .ThenBy(c => c.Nome)
+                .OrderBy(c => c.str_Grupo)
+                .ThenBy(c => c.str_Nome)
                 .ToListAsync();
 
             ViewBag.Consoles = consoles;
@@ -107,13 +107,13 @@ namespace Biblioteca_de_Jogos.Controllers
         {
             if (ModelState.IsValid)
             {
-                jogo.Dono = UsuarioLogado()!;
+                jogo.txt_Dono = UsuarioLogado()!;
                 _context.Jogos.Add(jogo);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Jogo adicionado com sucesso!";
+                TempData["SuccessMessage"] = "Jogo adicionado com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
-            await CarregarConsoles(jogo.Console);
+            await CarregarConsoles(jogo.txt_Console);
             return View(jogo);
         }
 
@@ -133,7 +133,7 @@ namespace Biblioteca_de_Jogos.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            await CarregarConsoles(jogo.Console);
+            await CarregarConsoles(jogo.txt_Console);
             return View(jogo);
         }
 
@@ -142,9 +142,9 @@ namespace Biblioteca_de_Jogos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Jogo jogo)
         {
-            if (id != jogo.Id) return NotFound();
+            if (id != jogo.int_Id) return NotFound();
 
-            var jogoOriginal = await _context.Jogos.AsNoTracking().FirstOrDefaultAsync(j => j.Id == id);
+            var jogoOriginal = await _context.Jogos.AsNoTracking().FirstOrDefaultAsync(j => j.int_Id == id);
             if (jogoOriginal == null) return NotFound();
 
             if (!TemPermissao(jogoOriginal))
@@ -155,13 +155,13 @@ namespace Biblioteca_de_Jogos.Controllers
 
             if (ModelState.IsValid)
             {
-                jogo.Dono = jogoOriginal.Dono;
+                jogo.txt_Dono = jogoOriginal.txt_Dono;
                 _context.Jogos.Update(jogo);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Jogo atualizado com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
-            await CarregarConsoles(jogo.Console);
+            await CarregarConsoles(jogo.txt_Console);
             return View(jogo);
         }
 
