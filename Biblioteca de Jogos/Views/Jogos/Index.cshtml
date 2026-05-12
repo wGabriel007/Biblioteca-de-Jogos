@@ -130,11 +130,14 @@
                                 📤 Emprestado para: @jogo.str_EmprestadoPara
                             </span>
                         }
+                        else if(!jogo.bool_Disponivel)
+                        {
+                            <span class="badge bg-secondary">🔒 Indisponível</span>
+                        }
                         else
                         {
                             <span class="badge bg-success">✅ Disponível</span>
                         }
-
                         @{ 
                             var solicitacoes = ViewBag.Solicitacoes as List<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>
                                                ?? new List<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>();
@@ -173,7 +176,7 @@
                                 </form>
                             }
                         }
-                        else if (!jogo.bool_EstaEmprestado)
+                        else if (!jogo.bool_EstaEmprestado && jogo.bool_Disponivel)
                         {
                             <form asp-controller="Emprestimo" asp-action="Solicitar" method="post">
                                 @Html.AntiForgeryToken()
@@ -181,9 +184,13 @@
                                 <button type="submit" class="btn btn-sm btn-outline-info">Pedir Emprestado</button>
                             </form>
                         }
-                        else
+                        else if (jogo.bool_EstaEmprestado)
                         {
                             <span class="text-muted small align-self-center">Emprestado</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted small align-self-center">🔒 Indisponível</span>
                         }
                     </div>
                 </div>

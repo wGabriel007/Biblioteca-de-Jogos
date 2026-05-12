@@ -110,7 +110,7 @@ namespace Biblioteca_de_Jogos.Controllers
                 jogo.txt_Dono = UsuarioLogado()!;
                 _context.Jogos.Add(jogo);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Jogo adicionado com sucesso!";
+                TempData["SuccessMessage"] = "Jogo adicionado com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
             await CarregarConsoles(jogo.txt_Console);

@@ -26,7 +26,7 @@ namespace Biblioteca_de_Jogos.Controllers
                 return RedirectToAction("Loguin", "Home");
 
             var jogo = await _context.Jogos.FindAsync(jogoId);
-            if (jogo == null || jogo.bool_EstaEmprestado || jogo.txt_Dono == solicitante)
+            if (jogo == null || jogo.bool_EstaEmprestado || !jogo.bool_Disponivel || jogo.txt_Dono == solicitante)
             {
                 TempData["Erro"] = "Solicitação inválida.";
                 return RedirectToAction("Index", "Jogos");

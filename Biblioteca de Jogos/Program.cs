@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Env.Load();
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+if (File.Exists(envPath))
+    Env.Load(envPath);
 
 // Variáveis de ambiente DB
 var host = Environment.GetEnvironmentVariable("DB_HOST");

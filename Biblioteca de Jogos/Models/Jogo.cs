@@ -41,5 +41,7 @@ namespace Biblioteca_de_Jogos.Models
 
         [Column("Dono")]
         public string txt_Dono { get; set; } = string.Empty;
+        [Column("Disponivel")]
+        public bool bool_Disponivel { get; set; } = true;
     }
 }
