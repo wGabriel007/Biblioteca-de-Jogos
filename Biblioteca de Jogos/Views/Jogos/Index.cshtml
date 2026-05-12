@@ -15,7 +15,11 @@
             {
                 <span class="badge bg-danger">Admin</span>
             }
-            <span class="text-muted small">👤 @usuarioLogado</span>
+            <a asp-controller="Home" asp-action="EditarPerfil"
+               class="text-muted small text-decoration-none"
+               title="Editar perfil">
+                👤 @usuarioLogado
+            </a>
 
             <a asp-controller="Emprestimo" asp-action="Notificacoes"
                    class="btn btn-outline-secondary btn-sm position-relative">
