@@ -172,6 +172,27 @@
                                 }
                             </div>
                         }
+
+                        @{
+                            var avaliacoes = ViewBag.Avaliacoes as List<Biblioteca_de_Jogos.Models.Avaliacao>
+                                             ?? new List<Biblioteca_de_Jogos.Models.Avaliacao>();
+                            var avaliacoesDoJogo = avaliacoes.Where(a => a.int_JogoId == jogo.int_Id).ToList();
+                            var media = avaliacoesDoJogo.Any() ? avaliacoesDoJogo.Average(a => a.int_Estrelas) : 0;
+                        }
+                        <p class="mb-1">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <span style="color: @(i <= Math.Round(media) ? "#ffc107" : "#ccc"); font-size:1.1rem;">★</span>
+                            }
+                            <small class="text-muted">(@avaliacoesDoJogo.Count avaliações)</small>
+                        </p>
+
+                        <button class="btn btn-sm btn-outline-warning mt-1"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalAvaliar"
+                                onclick="abrirModal(@jogo.int_Id, '@jogo.txt_Nome')">
+                            Avaliar
+                        </button>
                     </div>
                     <div class="card-footer d-flex flex-wrap gap-2">
                         @if (temPermissao)
@@ -217,6 +238,34 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalAvaliar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Avaliar: <span id="modalJogoNome"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-controller="Jogos" asp-action="Avaliar">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="jogoId" id="modalJogoId" />
+                <div class="modal-body">
+                    <div class="mb-3 text-center" id="estrelasContainer">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <span class="estrela" data-valor="@i"
+                                  style="font-size:2rem; cursor:pointer; color:#ccc;">★</span>
+                        }
+                        <input type="hidden" name="estrelas" id="estrelasValor" value="0" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning">Enviar Avaliação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         let abaAtual = 'meus';
@@ -255,5 +304,28 @@
         }
 
         filtrar();
+
+        function abrirModal(id, nome) {
+            document.getElementById('modalJogoId').value = id;
+            document.getElementById('modalJogoNome').textContent = nome;
+            document.getElementById('estrelasValor').value = 0;
+            document.querySelectorAll('.estrela').forEach(e => e.style.color = '#ccc');
+        }
+
+        document.querySelectorAll('.estrela').forEach(estrela => {
+            estrela.addEventListener('click', function () {
+                const val = parseInt(this.dataset.valor);
+                document.getElementById('estrelasValor').value = val;
+                document.querySelectorAll('.estrela').forEach(e => {
+                    e.style.color = parseInt(e.dataset.valor) <= val ? '#ffc107' : '#ccc';
+                });
+            });
+            estrela.addEventListener('mouseover', function () {
+                const val = parseInt(this.dataset.valor);
+                document.querySelectorAll('.estrela').forEach(e => {
+                    e.style.color = parseInt(e.dataset.valor) <= val ? '#ffc107' : '#ccc';
+                });
+            });
+        });
     </script>
 }

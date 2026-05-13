@@ -51,6 +51,8 @@ namespace Biblioteca_de_Jogos.Controllers
             ViewBag.Solicitacoes = solicitacoes;
             ViewBag.TotalPendentes = pedidosRecebidos.Count + minhasRespostas.Count;
 
+            ViewBag.Avaliacoes = await _context.Avaliacoes.ToListAsync();
+
             return View(jogos);
         }
 
@@ -183,6 +185,29 @@ namespace Biblioteca_de_Jogos.Controllers
             await _context.SaveChangesAsync();
             TempData["Success"] = "Jogo removido com sucesso!";
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Avaliar(int jogoId, int estrelas, string comentario)
+        {
+            var usuario = HttpContext.Session.GetString("UsuarioNome");
+            if (usuario == null) return RedirectToAction("Login", "Home");
+
+            var anterior = await _context.Avaliacoes
+                .FirstOrDefaultAsync(a => a.int_JogoId == jogoId && a.str_UsuarioNome == usuario);
+            if (anterior != null) _context.Avaliacoes.Remove(anterior);
+
+            _context.Avaliacoes.Add(new Avaliacao
+            {
+                int_JogoId = jogoId,
+                str_UsuarioNome = usuario,
+                int_Estrelas = estrelas,
+                txt_Comentario = comentario,
+                dat_Data = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
         }
     }
 }

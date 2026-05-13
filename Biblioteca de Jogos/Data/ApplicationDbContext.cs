@@ -16,6 +16,7 @@ namespace Biblioteca_de_Jogos.Data
         public DbSet<Console> Consoles { get; set; }
         public DbSet<SolicitacaoEmprestimo> Solicitacoes { get; set; }
         public DbSet<CodigoRecuperacao> CodigosRecuperacao { get; set; }
+        public DbSet<Avaliacao> Avaliacoes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,8 +28,13 @@ namespace Biblioteca_de_Jogos.Data
             modelBuilder.Entity<Console>().HasKey(c => c.int_Id);
             modelBuilder.Entity<SolicitacaoEmprestimo>().HasKey(s => s.int_Id);
             modelBuilder.Entity<CodigoRecuperacao>().HasKey(c => c.int_Id);
+            modelBuilder.Entity<Avaliacao>().HasKey(a => a.int_Id);
+            modelBuilder.Entity<Avaliacao>()
+                .HasOne(a => a.Jogo)
+                .WithMany()
+                .HasForeignKey(a => a.int_JogoId);
+            modelBuilder.Entity<Avaliacao>().HasKey(a => a.int_Id);
 
-            // Mapeamento de nomes de tabela (se necessário)
             modelBuilder.Entity<Jogo>().ToTable("Jogos");
             modelBuilder.Entity<Usuario>().ToTable("Usuarios");
             modelBuilder.Entity<Console>().ToTable("Consoles");
