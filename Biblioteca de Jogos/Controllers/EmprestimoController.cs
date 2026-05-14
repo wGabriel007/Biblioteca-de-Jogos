@@ -101,7 +101,8 @@ namespace Biblioteca_de_Jogos.Controllers
 
             solicitacao.Jogo!.bool_EstaEmprestado = true;  
             solicitacao.Jogo!.str_EmprestadoPara = solicitacao.str_SolicitanteNome;  
-            solicitacao.int_Status = (int)StatusSolicitacao.Aceito;  
+            solicitacao.Jogo!.dt_EmprestadoEm = DateTime.UtcNow;
+            solicitacao.int_Status = (int)StatusSolicitacao.Aceito;
 
             var outrasSolicitacoes = await _context.Solicitacoes
                 .Where(s => s.int_JogoId == solicitacao.int_JogoId &&
@@ -155,6 +156,7 @@ namespace Biblioteca_de_Jogos.Controllers
 
             jogo.bool_EstaEmprestado = false;
             jogo.str_EmprestadoPara = null;
+            jogo.dt_EmprestadoEm = null;
             await _context.SaveChangesAsync();
 
             TempData["Success"] = $"'{jogo.txt_Nome}' marcado como devolvido!";

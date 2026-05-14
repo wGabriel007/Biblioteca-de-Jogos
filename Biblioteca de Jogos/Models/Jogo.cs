@@ -35,6 +35,9 @@ namespace Biblioteca_de_Jogos.Models
         [Column("EmprestadoPara")]
         public string? str_EmprestadoPara { get; set; }
 
+        [Column("EmprestadoEm")]
+        public DateTime? dt_EmprestadoEm { get; set; }
+
         [Required(ErrorMessage = "O console é obrigatório")]
         [Column("Console")]
         public string txt_Console { get; set; } = string.Empty;

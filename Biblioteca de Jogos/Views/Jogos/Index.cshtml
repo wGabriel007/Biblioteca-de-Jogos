@@ -151,6 +151,10 @@
                         {
                             <span class="badge bg-warning text-dark">
                                 📤 Emprestado para: @jogo.str_EmprestadoPara
+                                @if (jogo.dt_EmprestadoEm.HasValue)
+                                {
+                                     @jogo.dt_EmprestadoEm.Value.ToLocalTime().ToString("dd/MM/yyyy")
+                                }
                             </span>
                         }
                         else if(!jogo.bool_Disponivel)

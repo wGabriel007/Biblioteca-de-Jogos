@@ -173,8 +173,16 @@ namespace Biblioteca_de_Jogos.Controllers
 
             if (ModelState.IsValid)
             {
-                jogo.txt_Dono = jogoOriginal.txt_Dono;
+                jogo.txt_Dono        = jogoOriginal.txt_Dono;
                 jogo.dt_AdicionadoEm = DateTime.SpecifyKind(jogoOriginal.dt_AdicionadoEm, DateTimeKind.Utc);
+
+
+                jogo.bool_EstaEmprestado = jogoOriginal.bool_EstaEmprestado;
+                jogo.str_EmprestadoPara  = jogoOriginal.str_EmprestadoPara;
+                jogo.dt_EmprestadoEm     = jogoOriginal.dt_EmprestadoEm.HasValue
+                    ? DateTime.SpecifyKind(jogoOriginal.dt_EmprestadoEm.Value, DateTimeKind.Utc)
+                    : null;
+
                 _context.Jogos.Update(jogo);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Jogo atualizado com sucesso!";
