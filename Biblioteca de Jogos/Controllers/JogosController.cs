@@ -56,6 +56,8 @@ namespace Biblioteca_de_Jogos.Controllers
             ViewBag.TotalMeusJogos = jogos.Count(j => j.txt_Dono == nomeUsuario);
             ViewBag.TotalComunidade = jogos.Count(j => j.txt_Dono != nomeUsuario);
 
+            ViewBag.Perifericos = await _context.Perifericos.ToListAsync();
+
             return View(jogos);
         }
 
@@ -83,16 +85,54 @@ namespace Biblioteca_de_Jogos.Controllers
             return View(jogosOutros);
         }
 
-        public async Task<IActionResult> Perifericos()
+        // GET: /Jogos/Perifericos
+        [HttpGet]
+        public IActionResult Perifericos()
         {
-            var nomeUsuario = HttpContext.Session.GetString("UsuarioNome");
-            if (nomeUsuario == null) return RedirectToAction("Loguin", "Home");
+            if (UsuarioLogado() == null)
+                return RedirectToAction("Loguin", "Home");
 
-            var perifericos = await _context.Jogos
-                .Where(p => p.txt_Dono != nomeUsuario)
-                .ToListAsync();
+            return View(new Periferico());
+        }
 
-            return View(perifericos);
+        // POST: /Jogos/Perifericos
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Perifericos(Periferico periferico)
+        {
+            if (UsuarioLogado() == null)
+                return RedirectToAction("Loguin", "Home");
+
+            if (ModelState.IsValid)
+            {
+                periferico.txt_Dono = UsuarioLogado()!; 
+                _context.Perifericos.Add(periferico);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Periferico adicionado com sucesso!";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(periferico);
+        }
+
+        // POST: /Jogos/DeletePeriferico/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePeriferico(int id)
+        {
+            var periferico = await _context.Perifericos.FindAsync(id);
+            if (periferico == null) return RedirectToAction(nameof(Index));
+
+            if (!IsAdmin() && periferico.txt_Dono != UsuarioLogado())
+            {
+                TempData["Erro"] = "Você não tem permissão para remover este periférico.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            _context.Perifericos.Remove(periferico);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Periférico removido com sucesso!";
+            return RedirectToAction(nameof(Index));
         }
 
         private async Task CarregarConsoles(string? consoleSelecionado = null)

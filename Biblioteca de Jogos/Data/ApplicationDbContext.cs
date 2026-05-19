@@ -17,6 +17,7 @@ namespace Biblioteca_de_Jogos.Data
         public DbSet<SolicitacaoEmprestimo> Solicitacoes { get; set; }
         public DbSet<CodigoRecuperacao> CodigosRecuperacao { get; set; }
         public DbSet<Avaliacao> Avaliacoes { get; set; }
+        public DbSet<Periferico> Perifericos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

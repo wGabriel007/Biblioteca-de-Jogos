@@ -7,6 +7,8 @@
     var totalRespostas = ViewBag.TotalRespostas as int? ?? 0;
     var totalMeusJogos = ViewBag.TotalMeusJogos as int? ?? 0;
     var totalComunidade = ViewBag.TotalComunidade as int? ?? 0;
+    var perifericos = ViewBag.Perifericos as List<Biblioteca_de_Jogos.Models.Periferico>
+                      ?? new List<Biblioteca_de_Jogos.Models.Periferico>();
 }
 
 <div class="container mt-4">
@@ -36,7 +38,8 @@
                 }
             </a>
 
-            <a asp-action="Create" class="btn btn-primary btn-sm" title="Adicionar Jogo">+ Adicionar Jogo</a>
+            <a asp-action="Create" class="btn btn-primary btn-sm" title="Adicionar Jogo">+ Jogo</a>
+            <a asp-action="Perifericos" class="btn btn-primary btn-sm" title="Adicionar Periferico">+ Periferico</a>
             <a asp-action="Logout" asp-controller="Home" class="btn btn-outline-secondary btn-sm" title="Sair">Sair</a>
         </div>
     </div>
@@ -108,9 +111,9 @@
         <li class="nav-item">
             <button class="nav-link" style="color: black" id="btn-comunidade" onclick="trocarAba('comunidade')"> Comunidade (@totalComunidade)</button>
         </li>
-        @* <li class="nav-item">
+        <li class="nav-item">
             <button class="nav-link" style="color: black" id="btn-perifericos" onclick="trocarAba('prefireficos')"> Perifericos</button>
-        </li> *@
+        </li> 
     </ul>
 
     <div id="semResultados" class="alert alert-info d-none">
@@ -245,6 +248,60 @@
             </div>
         }
     </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="listaPerifericos" style="display:none">
+        @if (!perifericos.Any())
+        {
+            <div class="col-12">
+                <div class="alert alert-info">Nenhum periférico cadastrado ainda.</div>
+            </div>
+        }
+        @foreach (var p in perifericos)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    @if (!string.IsNullOrEmpty(p.txt_FotoUrl))
+                    {
+                        <img src="@p.txt_FotoUrl" class="card-img-top"
+                             style="height:180px; object-fit:cover;" alt="@p.txt_Nome" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@p.txt_Nome</h5>
+                        <p class="card-text text-muted mb-1">🎮 Estado: @p.txt_Estado</p>
+                        <p class="card-text text-muted mb-1">👤 Dono: <strong>@p.txt_Dono</strong></p>
+                        <div class="mt-2">
+                            @if (p.bool_Disponivel_Emprestimo)
+                            {
+                                <span class="badge bg-success me-1">✅ Empréstimo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary me-1">🔒 Sem empréstimo</span>
+                            }
+                            @if (p.bool_Disponivel_Venda)
+                            {
+                                <span class="badge bg-primary">💰 Venda</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">🔒 Sem venda</span>
+                            }
+                        </div>
+                    </div>
+                    @if (isAdmin || p.txt_Dono == usuarioLogado)
+                    {
+                        <div class="card-footer d-flex gap-2">
+                            <form asp-action="DeletePeriferico" asp-route-id="@p.int_Id" method="post"
+                                  onsubmit="return confirm('Remover @p.txt_Nome?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 <div class="modal fade" id="modalAvaliar" tabindex="-1">
@@ -283,7 +340,20 @@
             abaAtual = aba;
             document.getElementById('btn-meus').classList.toggle('active', aba === 'meus');
             document.getElementById('btn-comunidade').classList.toggle('active', aba === 'comunidade');
-            filtrar();
+            document.getElementById('btn-perifericos').classList.toggle('active', aba === 'prefireficos');
+
+            // mostra/esconde a lista de periféricos
+            const listaPerifericos = document.getElementById('listaPerifericos');
+            const listaJogos = document.getElementById('listaJogos');
+            if (aba === 'prefireficos') {
+                listaPerifericos.style.display = '';
+                listaJogos.style.display = 'none';
+                document.getElementById('semResultados').classList.add('d-none');
+            } else {
+                listaPerifericos.style.display = 'none';
+                listaJogos.style.display = '';
+                filtrar();
+            }
         }
 
         function filtrar() {
