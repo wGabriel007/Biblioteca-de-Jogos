@@ -48,8 +48,21 @@ namespace Biblioteca_de_Jogos.Controllers
                             !s.bool_Visualizada)
                 .ToListAsync();
 
+            // Notificações de periféricos
+            var pedidosPerifericoRecebidos = await _context.SolicitacoesPeriferico
+                .Where(s => s.str_DonoNome == nomeUsuario &&
+                            s.int_Status == (int)StatusSolicitacao.Pendente)
+                .ToListAsync();
+
+            var minhasRespostasPeriferico = await _context.SolicitacoesPeriferico
+                .Where(s => s.str_SolicitanteNome == nomeUsuario &&
+                            s.int_Status != (int)StatusSolicitacao.Pendente &&
+                            !s.bool_Visualizada)
+                .ToListAsync();
+
             ViewBag.Solicitacoes = solicitacoes;
-            ViewBag.TotalPendentes = pedidosRecebidos.Count + minhasRespostas.Count;
+            ViewBag.TotalPendentes = pedidosRecebidos.Count + minhasRespostas.Count
+                                   + pedidosPerifericoRecebidos.Count + minhasRespostasPeriferico.Count;
 
             ViewBag.Avaliacoes = await _context.Avaliacoes.ToListAsync();
 

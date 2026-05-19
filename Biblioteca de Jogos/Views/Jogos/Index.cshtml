@@ -276,15 +276,15 @@
                             }
                             else
                             {
-                                <span class="badge bg-secondary me-1">🔒 Sem empréstimo</span>
+                                <span class="badge bg-secondary me-1">❌ Empréstimo</span>
                             }
                             @if (p.bool_Disponivel_Venda)
                             {
-                                <span class="badge bg-primary">💰 Venda</span>
+                                <span class="badge bg-primary">✅ Venda</span>
                             }
                             else
                             {
-                                <span class="badge bg-secondary">🔒 Sem venda</span>
+                                <span class="badge bg-secondary">❌ Venda</span>
                             }
                         </div>
                     </div>
@@ -296,6 +296,33 @@
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
                             </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="card-footer d-flex gap-2">
+                            @if (p.bool_Disponivel_Emprestimo)
+                            {
+                                <form asp-controller="Emprestimo" asp-action="SolicitarPeriferico" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="perifericoId" value="@p.int_Id" />
+                                    <input type="hidden" name="tipo" value="Emprestimo" />
+                                    <button type="submit" class="btn btn-sm btn-outline-info">Pedir Emprestado</button>
+                                </form>
+                            }
+                            @if (p.bool_Disponivel_Venda)
+                            {
+                                <form asp-controller="Emprestimo" asp-action="SolicitarPeriferico" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="perifericoId" value="@p.int_Id" />
+                                    <input type="hidden" name="tipo" value="Venda" />
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Comprar</button>
+                                </form>
+                            }
+                            @if (!p.bool_Disponivel_Emprestimo && !p.bool_Disponivel_Venda)
+                            {
+                                <span class="text-muted small align-self-center">🔒 Indisponível</span>
+                            }
                         </div>
                     }
                 </div>

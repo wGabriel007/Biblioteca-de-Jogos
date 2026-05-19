@@ -6,6 +6,13 @@
                            ?? new List<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>();
     var minhasRespostas  = ViewBag.MinhasRespostas  as List<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>
                            ?? new List<Biblioteca_de_Jogos.Models.SolicitacaoEmprestimo>();
+    var pedidosPerifericosRecebidos = ViewBag.PedidosPerifericosRecebidos as List<Biblioteca_de_Jogos.Models.SolicitacaoPeriferico>
+                           ?? new List<Biblioteca_de_Jogos.Models.SolicitacaoPeriferico>();
+    var minhasRespostasPeriferico = ViewBag.MinhasRespostasPeriferico as List<Biblioteca_de_Jogos.Models.SolicitacaoPeriferico>
+                           ?? new List<Biblioteca_de_Jogos.Models.SolicitacaoPeriferico>();
+
+    var totalPedidos   = pedidosRecebidos.Count + pedidosPerifericosRecebidos.Count;
+    var totalRespostas = minhasRespostas.Count + minhasRespostasPeriferico.Count;
 }
 
 <div class="container mt-4">
@@ -23,13 +30,14 @@
     }
 
     <h5 class="mt-3 mb-2">Pedidos recebidos</h5>
-    @if (!pedidosRecebidos.Any())
+    @if (totalPedidos == 0)
     {
-        <div class="alert alert-light border">Nenhum pedido pendente.</div>
+        <div class="alert alert-info">Nenhum pedido pendente.</div>
     }
     else
     {
         <div class="row g-3 mb-4">
+
             @foreach (var s in pedidosRecebidos)
             {
                 <div class="col-md-6">
@@ -37,13 +45,13 @@
                         <div class="card-body d-flex gap-3 align-items-center">
                             @if (!string.IsNullOrEmpty(s.Jogo?.txt_FotoUrl))
                             {
-                                <img src="@s.Jogo.txt_FotoUrl"
-                                     style="height:70px; border-radius:8px; object-fit:cover;" />
+                                <img src="@s.Jogo.txt_FotoUrl" style="height:70px; border-radius:8px; object-fit:cover;" />
                             }
                             <div>
-                                <h6 class="mb-1">🎮 @s.Jogo?.txt_Nome</h6>
-                                <p class="mb-1">👤 <strong>@s.str_SolicitanteNome</strong> quer este jogo</p>
-                                <small class="text-muted">📅 @s.ts_DataSolicitacao.ToString("dd/MM/yyyy HH:mm")</small>
+                                <span class="badge bg-secondary mb-1">🎮 Jogo</span>
+                                <h6 class="mb-1">@s.Jogo?.txt_Nome</h6>
+                                <p class="mb-1">👤 <strong>@s.str_SolicitanteNome</strong> quer pegar emprestado</p>
+                                <small class="text-muted">📅 @s.ts_DataSolicitacao.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
                             </div>
                         </div>
                         <div class="card-footer d-flex gap-2">
@@ -61,41 +69,115 @@
                     </div>
                 </div>
             }
+
+            @foreach (var s in pedidosPerifericosRecebidos)
+            {
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-warning">
+                        <div class="card-body d-flex gap-3 align-items-center">
+                            @if (!string.IsNullOrEmpty(s.Periferico?.txt_FotoUrl))
+                            {
+                                <img src="@s.Periferico.txt_FotoUrl" style="height:70px; border-radius:8px; object-fit:cover;" />
+                            }
+                            <div>
+                                <span class="badge bg-secondary mb-1"> Periférico</span>
+                                <span class="badge @(s.str_TipoSolicitacao == "Venda" ? "bg-success" : "bg-info") mb-1">
+                                    @(s.str_TipoSolicitacao == "Venda" ? "💰 Venda" : "📦 Empréstimo")
+                                </span>
+                                <h6 class="mb-1">@s.Periferico?.txt_Nome</h6>
+                                <p class="mb-1">
+                                    👤 <strong>@s.str_SolicitanteNome</strong>
+                                    quer @(s.str_TipoSolicitacao == "Venda" ? "comprar" : "pegar emprestado")
+                                </p>
+                                <small class="text-muted">📅 @s.ts_DataSolicitacao.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                            </div>
+                        </div>
+                        <div class="card-footer d-flex gap-2">
+                            <form asp-controller="Emprestimo" asp-action="AceitarPeriferico" method="post" class="w-50">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@s.int_Id" />
+                                <button type="submit" class="btn btn-success w-100">✅ Aceitar</button>
+                            </form>
+                            <form asp-controller="Emprestimo" asp-action="RejeitarPeriferico" method="post" class="w-50">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@s.int_Id" />
+                                <button type="submit" class="btn btn-danger w-100">❌ Rejeitar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+
         </div>
     }
 
     <hr />
-    <h5 class="mt-3 mb-2"></h5>
-    @if (!minhasRespostas.Any())
+
+    <h5 class="mt-3 mb-2">Minhas respostas</h5>
+    @if (totalRespostas == 0)
     {
-        
+        <div class="alert alert-info">Nenhuma resposta nova.</div>
     }
     else
     {
         <div class="row g-3">
+
             @foreach (var s in minhasRespostas)
             {
                 var (borda, icone, texto) = s.int_Status == (int)StatusSolicitacao.Aceito
                     ? ("border-success", "✅", "Pedido ACEITO!")
                     : ("border-danger",  "❌", "Pedido RECUSADO.");
-
                 <div class="col-md-6">
                     <div class="card shadow-sm @borda">
                         <div class="card-body d-flex gap-3 align-items-center">
                             @if (!string.IsNullOrEmpty(s.Jogo?.txt_FotoUrl))
                             {
-                                <img src="@s.Jogo.txt_FotoUrl"
-                                     style="height:70px; border-radius:8px; object-fit:cover;" />
+                                <img src="@s.Jogo.txt_FotoUrl" style="height:70px; border-radius:8px; object-fit:cover;" />
                             }
                             <div>
-                                <h6 class="mb-1">🎮 @s.Jogo?.txt_Nome</h6>
+                                <span class="badge bg-secondary mb-1">🎮 Jogo</span>
+                                <h6 class="mb-1">@s.Jogo?.txt_Nome</h6>
                                 <p class="mb-1"><strong>@icone @texto</strong></p>
                                 <p class="mb-1 text-muted small">👤 Dono: @s.str_DonoNome</p>
-                                <small class="text-muted">📅 @s.ts_DataSolicitacao.ToString("dd/MM/yyyy HH:mm")</small>
+                                <small class="text-muted">📅 @s.ts_DataSolicitacao.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
                             </div>
                         </div>
                         <div class="card-footer">
                             <form asp-controller="Emprestimo" asp-action="MarcarVisualizada" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@s.int_Id" />
+                                <button type="submit" class="btn btn-outline-secondary w-100">Confirmar leitura</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @foreach (var s in minhasRespostasPeriferico)
+            {
+                var (borda, icone, texto) = s.int_Status == (int)StatusSolicitacao.Aceito
+                    ? ("border-success", "✅", "Pedido ACEITO!")
+                    : ("border-danger",  "❌", "Pedido RECUSADO.");
+                <div class="col-md-6">
+                    <div class="card shadow-sm @borda">
+                        <div class="card-body d-flex gap-3 align-items-center">
+                            @if (!string.IsNullOrEmpty(s.Periferico?.txt_FotoUrl))
+                            {
+                                <img src="@s.Periferico.txt_FotoUrl" style="height:70px; border-radius:8px; object-fit:cover;" />
+                            }
+                            <div>
+                                <span class="badge bg-secondary mb-1">🕹️ Periférico</span>
+                                <span class="badge @(s.str_TipoSolicitacao == "Venda" ? "bg-success" : "bg-info") mb-1">
+                                    @(s.str_TipoSolicitacao == "Venda" ? "💰 Venda" : "📦 Empréstimo")
+                                </span>
+                                <h6 class="mb-1">@s.Periferico?.txt_Nome</h6>
+                                <p class="mb-1"><strong>@icone @texto</strong></p>
+                                <p class="mb-1 text-muted small">👤 Dono: @s.str_DonoNome</p>
+                                <small class="text-muted">📅 @s.ts_DataSolicitacao.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <form asp-controller="Emprestimo" asp-action="MarcarVisualizadaPeriferico" method="post">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@s.int_Id" />
                                 <button type="submit" class="btn btn-outline-secondary w-100">Confirmar</button>
@@ -104,6 +186,7 @@
                     </div>
                 </div>
             }
+
         </div>
     }
 </div>
